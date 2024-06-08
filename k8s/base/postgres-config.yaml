@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: mvg
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: "mvg"
+  POSTGRES_USER: "mvg"

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mvg-backend
+  namespace: mvg
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mvg-backend
+  template:
+    metadata:
+      labels:
+        app: mvg-backend
+    spec:
+      containers:
+        - name: backend
+          image: ghcr.io/linuseing/mvg-backend:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DATABASE_URL
+      imagePullSecrets:
+        - name: ghcr-credentials

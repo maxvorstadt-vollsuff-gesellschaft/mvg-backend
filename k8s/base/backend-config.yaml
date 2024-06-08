@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: mvg
+  labels:
+    app: postgres
+data:
+  DATABASE_URL: "postgresql://mvg:3krRMhNa@postgres/mvg"

@@ -1,0 +1,12 @@
+resources:
+  - namespace.yaml
+  - postgres-config.yaml
+  - postgres-secret.yaml
+  - postgres-set.yaml
+  - postgres-service.yaml
+  - backend-config.yaml
+  - backend-service.yaml
+  - backend-deployment.yaml
+  - ingres.yaml
+
+namespace: mvg
