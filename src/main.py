@@ -1,4 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+
 
 from . import models
 from . import schemas
@@ -8,6 +10,17 @@ from .database import engine, get_db
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
+
+origins = [
+    "https://mvg.life",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")
