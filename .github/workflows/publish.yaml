@@ -54,4 +54,4 @@ jobs:
 
       - name: Roll out new image
         run: |
-          kubectl set image deployment/mvg-backend backend=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} --record        
+          kubectl set image -n mvg deployment/mvg-backend backend=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}        
