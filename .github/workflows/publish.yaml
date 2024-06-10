@@ -48,6 +48,7 @@ jobs:
 
       - name: Set up Kubernetes context
         run: |
+          mkdir -p $HOME/.kube
           echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
           kubectl config view
 
