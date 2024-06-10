@@ -10,8 +10,8 @@ from ..models import Event
 class CRUDEvent(CRUDBase[Event]):
     def get_next_upcoming_event(self, db: Session, limit=1) -> list[Event]:
         return (((db.query(self.model)
-                .filter(self.model.start_time > datetime.now()))
-                .order_by(self.model.start_time))
+                  .filter(self.model.start_time > datetime.now()))
+                 .order_by(self.model.start_time))
                 .limit(limit).all())
 
     def participate(self, db: Session, event_id: int, member_id: int) -> Event:
@@ -38,5 +38,6 @@ class CRUDEvent(CRUDBase[Event]):
         else:
             raise ValueError("Member not participating in the event")
         return event
+
 
 event_repository = CRUDEvent(Event)

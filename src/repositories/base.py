@@ -16,7 +16,9 @@ class CRUDBase(Generic[ModelType]):
         return db.query(self.model).offset(skip).limit(limit).all()
 
     def create(self, db: Session, obj_in) -> ModelType:
-        db_obj = self.model(**obj_in.__dict__)
+        db_obj = obj_in
+        if type(obj_in) is not self.model:
+            db_obj = self.model(**obj_in.__dict__)
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)

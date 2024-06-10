@@ -1,4 +1,8 @@
+import datetime
+
+from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
 
 from . import models
 from . import schemas
@@ -13,6 +17,21 @@ models.Base.metadata.create_all(bind=engine)
 @app.on_event("startup")
 async def startup() -> None:
     await database.database.connect()
+
+
+def get_next_quote(db: Session):
+    print("getting quote")
+    quote = repositories.quote_repository.get_random(db)
+    if quote:
+        rotation = models.QuoteRotation(quote=quote, chosen_at=datetime.datetime.now())
+        repositories.rotation_repository.create(db, rotation)
+
+
+@app.on_event("startup")
+def schedule():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(get_next_quote, 'interval', days=1, args=[next(get_db())])
+    scheduler.start()
 
 
 @app.on_event("shutdown")
@@ -70,3 +89,9 @@ def remove_participant(event_id: int, member: int, db=Depends(get_db)) -> schema
         return schemas.Event.from_orm(db_event)
     except ValueError as err:
         raise HTTPException(status_code=400, detail=str(err))
+
+
+@app.get("/quotes")
+def get_quotes(limit: int = 10, skip: int = 0, db=Depends(get_db)):
+    db_quotes = repositories.quote_repository.get_multi(db, limit=limit, skip=skip)
+    return [schemas.Quote.from_orm(db_quote) for db_quote in db_quotes]

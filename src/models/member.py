@@ -6,6 +6,7 @@ from .base import Base
 
 if TYPE_CHECKING:
     from event import Event
+    from quote import Quote
 
 
 association_table = Table(
@@ -27,3 +28,4 @@ class Member(Base):
         back_populates="participants",
         lazy='select'
     )
+    quotes: Mapped[List["Quote"]] = relationship("Quote", lazy='select', back_populates="author")
