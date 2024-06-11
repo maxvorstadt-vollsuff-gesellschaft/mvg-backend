@@ -1,11 +1,16 @@
 import datetime
+from typing import Annotated
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
+from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
+from starlette import status
 
-
+from .auth_utils import get_current_user, create_access_token
+from .schemas.auth import Token
 from . import models
 from . import schemas
 from . import repositories
@@ -13,6 +18,7 @@ from . import database
 from .database import engine, get_db
 
 app = FastAPI()
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 models.Base.metadata.create_all(bind=engine)
 
 origins = [
@@ -66,7 +72,11 @@ def events(skip: int = 0, limit: int = 10, db=Depends(get_db)) -> list[schemas.E
 
 
 @app.post("/events")
-def create_event(event: schemas.EventCreate, db=Depends(get_db)):
+def create_event(
+    event: schemas.EventCreate,
+    _current_user: Annotated[models.Member, Depends(get_current_user)],
+    db=Depends(get_db)
+):
     db_event = repositories.event_repository.create(db, event)
     return schemas.Event.from_orm(db_event)
 
@@ -88,7 +98,14 @@ def get_next_event(limit: int = 1, db=Depends(get_db)) -> list[schemas.Event]:
 
 
 @app.post("/events/{event_id}/participate")
-def participate(event_id: int, member: int, db=Depends(get_db)) -> schemas.Event:
+def participate(
+        event_id: int,
+        member: int,
+        current_user: Annotated[models.Member, Depends(get_current_user)],
+        db=Depends(get_db)
+) -> schemas.Event:
+    if current_user.id != member:
+        raise HTTPException(status_code=403, detail="You can only sign up yourself!")
     try:
         db_event = repositories.event_repository.participate(db, event_id, member)
         return schemas.Event.from_orm(db_event)
@@ -97,7 +114,14 @@ def participate(event_id: int, member: int, db=Depends(get_db)) -> schemas.Event
 
 
 @app.delete("/events/{event_id}/participate")
-def remove_participant(event_id: int, member: int, db=Depends(get_db)) -> schemas.Event:
+def remove_participant(
+    event_id: int,
+    member: int,
+    current_user: Annotated[models.Member, Depends(get_current_user)],
+    db=Depends(get_db)
+) -> schemas.Event:
+    if current_user.id != member:
+        raise HTTPException(status_code=403, detail="You can only remove your participation")
     try:
         db_event = repositories.event_repository.remove_participant(db, event_id, member)
         return schemas.Event.from_orm(db_event)
@@ -109,3 +133,41 @@ def remove_participant(event_id: int, member: int, db=Depends(get_db)) -> schema
 def get_quotes(limit: int = 10, skip: int = 0, db=Depends(get_db)):
     db_quotes = repositories.quote_repository.get_multi(db, limit=limit, skip=skip)
     return [schemas.Quote.from_orm(db_quote) for db_quote in db_quotes]
+
+
+@app.post("/token")
+async def login_for_access_token(
+        form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+        db: Session = Depends(get_db)
+) -> Token:
+    exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Incorrect username or password",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    user_auth = repositories.auth_repository.get_by_username(db, form_data.username)
+
+    if user_auth is None:
+        raise exception
+
+    if not pwd_context.verify(form_data.password, user_auth.pw_hash):
+        raise exception
+
+    access_token = create_access_token(
+        data={"sub": user_auth.member_id},
+        key="abc"
+    )
+
+    return Token(access_token=access_token, token_type="bearer")
+
+
+@app.get("/users/me/", response_model=schemas.Member)
+async def read_users_me(
+        current_user: Annotated[models.Member, Depends(get_current_user)],
+) -> schemas.Member:
+    return schemas.Member.from_orm(current_user)
+
+
+@app.post("/auth/hash")
+def set_password(pw: str):
+    return pwd_context.hash(pw)
