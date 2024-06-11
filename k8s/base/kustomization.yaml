@@ -8,5 +8,8 @@ resources:
   - backend-service.yaml
   - backend-deployment.yaml
   - ingres.yaml
+  - pgadmin-deployment.yaml
+  - pgadmin-service.yaml
+  - pgadmin-ingres.yaml
 
 namespace: mvg
