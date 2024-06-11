@@ -39,5 +39,8 @@ class CRUDEvent(CRUDBase[Event]):
             raise ValueError("Member not participating in the event")
         return event
 
+    def get_multi(self, db: Session, skip: int = 0, limit: int = 10):
+        return db.query(self.model).order_by(self.model.start_time).offset(skip).limit(limit).all()
+
 
 event_repository = CRUDEvent(Event)
