@@ -27,7 +27,6 @@ class Member(Base):
         "Event",
         secondary=association_table,
         back_populates="participants",
-        lazy='select',
-        cascade="all, delete"
+        lazy='select'
     )
     quotes: Mapped[List["Quote"]] = relationship("Quote", lazy='select', back_populates="author")

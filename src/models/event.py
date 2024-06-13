@@ -19,6 +19,5 @@ class Event(Base):
     participants: Mapped[List["Member"]] = relationship(
         "Member",
         secondary=association_table,
-        back_populates="participated_in",
-        cascade="all, delete"
+        back_populates="participated_in"
     )
