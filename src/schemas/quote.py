@@ -4,15 +4,15 @@ from .member import Member
 
 class QuoteBase(BaseModel):
     quote: str
-    author: Member
 
 
 class QuoteCreate(QuoteBase):
-    pass
+    author_id: int
 
 
 class Quote(QuoteBase):
     id: int
+    author: Member
 
     class Config:
         from_attributes = True

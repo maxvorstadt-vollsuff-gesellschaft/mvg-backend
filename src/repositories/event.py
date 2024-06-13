@@ -42,5 +42,11 @@ class CRUDEvent(CRUDBase[Event]):
     def get_multi(self, db: Session, skip: int = 0, limit: int = 10):
         return db.query(self.model).order_by(self.model.start_time).offset(skip).limit(limit).all()
 
+    def get_upcoming_events(self, db: Session, limit=10):
+        return ((db.query(self.model)
+                  .filter(self.model.start_time > datetime.now()))
+                 .order_by(self.model.start_time)
+                .limit(limit).all())
+
 
 event_repository = CRUDEvent(Event)

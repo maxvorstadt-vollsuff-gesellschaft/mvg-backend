@@ -81,7 +81,13 @@ def create_event(
     return schemas.Event.from_orm(db_event)
 
 
-@app.get("/events/{id}")
+@app.get("/events/upcoming")
+def events(limit: int = 10, db=Depends(get_db)) -> list[schemas.Event]:
+    db_events = repositories.event_repository.get_upcoming_events(db, limit=limit)
+    return [schemas.Event.from_orm(event) for event in db_events]
+
+
+@app.get("/events/event/{id}")
 def get_event(id: int, db=Depends(get_db)) -> schemas.Event:
     db_event = repositories.event_repository.get(db, id)
     if not db_event:
@@ -133,6 +139,12 @@ def remove_participant(
 def get_quotes(limit: int = 10, skip: int = 0, db=Depends(get_db)):
     db_quotes = repositories.quote_repository.get_multi(db, limit=limit, skip=skip)
     return [schemas.Quote.from_orm(db_quote) for db_quote in db_quotes]
+
+
+@app.post("/quotes", response_model=schemas.Quote)
+def create_quote(quote: schemas.QuoteCreate, db=Depends(get_db)) -> schemas.Quote:
+    db_quote = repositories.quote_repository.create(db, quote)
+    return schemas.Quote.from_orm(db_quote)
 
 
 @app.post("/token")
