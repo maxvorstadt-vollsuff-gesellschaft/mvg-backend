@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, Table, Column, ForeignKey
+from sqlalchemy import Integer, String, Table, Column, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING, List
 
@@ -14,6 +14,7 @@ association_table = Table(
     Base.metadata,
     Column("member_id", ForeignKey("members.id")),
     Column("event_id", ForeignKey("events.id")),
+    Column("vollsuff", Boolean)
 )
 
 
