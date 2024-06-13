@@ -1,4 +1,6 @@
-from sqlalchemy import Integer, String, ForeignKey
+from datetime import datetime
+
+from sqlalchemy import Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from .base import Base
@@ -17,3 +19,5 @@ class Quote(Base):
     author_id: Mapped[int] = mapped_column(Integer, ForeignKey("members.id"), nullable=False)
     author: Mapped["Member"] = relationship("Member", back_populates="quotes")
     rotations: Mapped[list["QuoteRotation"]] = relationship("QuoteRotation", back_populates="quote", lazy='select')
+    date: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=datetime.utcnow)
+    location: Mapped[str] = mapped_column(String)

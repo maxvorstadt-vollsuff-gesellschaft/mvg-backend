@@ -21,3 +21,4 @@ class Event(Base):
         secondary=association_table,
         back_populates="participated_in"
     )
+    location: Mapped[str] = mapped_column(String)

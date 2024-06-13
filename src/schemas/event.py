@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic.main import BaseModel
 from .member import Member
@@ -7,6 +8,7 @@ from .member import Member
 class EventBase(BaseModel):
     name: str
     start_time: datetime
+    location: Optional[str]
 
 
 class EventCreate(EventBase):
