@@ -20,4 +20,5 @@ class Event(Base):
         "Member",
         secondary=association_table,
         back_populates="participated_in",
+        cascade="all, delete"
     )

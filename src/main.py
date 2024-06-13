@@ -95,6 +95,15 @@ def get_event(id: int, db=Depends(get_db)) -> schemas.Event:
     return schemas.Event.from_orm(db_event)
 
 
+@app.delete("/events/event/{id}")
+def delete_event(id: int, db=Depends(get_db)) -> schemas.Event:
+    try:
+        db_event = repositories.event_repository.remove(db, id)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Event does not exist")
+    return schemas.Event.from_orm(db_event)
+
+
 @app.get("/upcoming_events")
 def get_next_event(limit: int = 1, db=Depends(get_db)) -> list[schemas.Event]:
     db_events = repositories.event_repository.get_next_upcoming_event(db, limit=limit)

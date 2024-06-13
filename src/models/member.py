@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 association_table = Table(
     "participated",
     Base.metadata,
-    Column("member_id", ForeignKey("members.id")),
-    Column("event_id", ForeignKey("events.id")),
+    Column("member_id", ForeignKey("members.id", ondelete="CASCADE")),
+    Column("event_id", ForeignKey("events.id", ondelete="CASCADE")),
     Column("vollsuff", Boolean)
 )
 
@@ -27,6 +27,7 @@ class Member(Base):
         "Event",
         secondary=association_table,
         back_populates="participants",
-        lazy='select'
+        lazy='select',
+        cascade="all, delete"
     )
     quotes: Mapped[List["Quote"]] = relationship("Quote", lazy='select', back_populates="author")
