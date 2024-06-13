@@ -40,7 +40,6 @@ async def startup() -> None:
 
 
 def get_next_quote(db: Session):
-    print("getting quote")
     quote = repositories.quote_repository.get_random(db)
     if quote:
         rotation = models.QuoteRotation(quote=quote, chosen_at=datetime.datetime.now())
@@ -161,6 +160,14 @@ def create_quote(
     db=Depends(get_db)
 ) -> schemas.Quote:
     db_quote = repositories.quote_repository.create(db, quote)
+    return schemas.Quote.from_orm(db_quote)
+
+
+@app.get("/random_quote")
+def update_quote_of_the_day(db = Depends(get_db)) -> schemas.Quote:
+    db_quote = repositories.quote_repository.get_random(db)
+    if db_quote is None:
+        raise HTTPException(status_code=204, detail="There are no quotes yet")
     return schemas.Quote.from_orm(db_quote)
 
 
