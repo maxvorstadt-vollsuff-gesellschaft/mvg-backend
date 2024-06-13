@@ -96,7 +96,11 @@ def get_event(id: int, db=Depends(get_db)) -> schemas.Event:
 
 
 @app.delete("/events/event/{id}")
-def delete_event(id: int, db=Depends(get_db)) -> schemas.Event:
+def delete_event(
+    id: int,
+    _current_user: Annotated[models.Member, Depends(get_current_user)],
+    db=Depends(get_db),
+) -> schemas.Event:
     try:
         db_event = repositories.event_repository.remove(db, id)
     except ValueError:
@@ -151,7 +155,11 @@ def get_quotes(limit: int = 10, skip: int = 0, db=Depends(get_db)):
 
 
 @app.post("/quotes", response_model=schemas.Quote)
-def create_quote(quote: schemas.QuoteCreate, db=Depends(get_db)) -> schemas.Quote:
+def create_quote(
+    quote: schemas.QuoteCreate,
+    _current_user: Annotated[models.Member, Depends(get_current_user)],
+    db=Depends(get_db)
+) -> schemas.Quote:
     db_quote = repositories.quote_repository.create(db, quote)
     return schemas.Quote.from_orm(db_quote)
 
