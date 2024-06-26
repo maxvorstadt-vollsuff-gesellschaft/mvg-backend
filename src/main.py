@@ -65,7 +65,7 @@ def members(db=Depends(get_db)) -> list[schemas.Member]:
 
 
 @app.get("/events")
-def events(skip: int = 0, limit: int = 10, db=Depends(get_db)) -> list[schemas.Event]:
+def events(skip: int = 0, limit: int = 100, db=Depends(get_db)) -> list[schemas.Event]:
     db_events = repositories.event_repository.get_multi(db, skip=skip, limit=limit)
     return [schemas.Event.from_orm(event) for event in db_events]
 

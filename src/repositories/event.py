@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from ..models import Member
@@ -40,7 +41,7 @@ class CRUDEvent(CRUDBase[Event]):
         return event
 
     def get_multi(self, db: Session, skip: int = 0, limit: int = 10):
-        return db.query(self.model).order_by(self.model.start_time).offset(skip).limit(limit).all()
+        return db.query(self.model).order_by(desc(self.model.start_time)).offset(skip).limit(limit).all()
 
     def get_upcoming_events(self, db: Session, limit=10):
         return ((db.query(self.model)
