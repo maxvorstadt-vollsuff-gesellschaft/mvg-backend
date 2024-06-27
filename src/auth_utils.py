@@ -22,7 +22,7 @@ def create_access_token(data: dict, key: str, expires_delta: Union[datetime.time
     if expires_delta:
         expire = datetime.datetime.now(datetime.timezone.utc) + expires_delta
     else:
-        expire = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=5)
+        expire = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=50)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
     return encoded_jwt
