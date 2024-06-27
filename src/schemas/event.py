@@ -12,7 +12,7 @@ class EventBase(BaseModel):
 
 
 class EventCreate(EventBase):
-    pass
+    author_id: Optional[int]
 
 
 class EventUpdate(EventBase):
@@ -22,6 +22,7 @@ class EventUpdate(EventBase):
 class Event(EventBase):
     id: int
     participants: list[Member]
+    author: Optional[Member]
 
     class Config:
         from_attributes = True

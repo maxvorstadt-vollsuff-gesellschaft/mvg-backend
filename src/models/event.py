@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, DateTime
+from sqlalchemy import Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from typing import TYPE_CHECKING, List
@@ -22,3 +22,5 @@ class Event(Base):
         back_populates="participated_in"
     )
     location: Mapped[str] = mapped_column(String)
+    author_id: Mapped[int] = mapped_column(Integer, ForeignKey("members.id"), nullable=False)
+    author: Mapped["Member"] = relationship("Member", back_populates="events")
