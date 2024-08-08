@@ -1,4 +1,5 @@
 import datetime
+from collections import defaultdict
 from typing import Annotated
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -64,6 +65,15 @@ def members(db=Depends(get_db)) -> list[schemas.Member]:
     return [schemas.Member.from_orm(member) for member in db_members]
 
 
+@app.get("/members/{event_id}/drinks")
+def get_drinks_for_event(
+        member_id: int,
+        db=Depends(get_db)
+) -> list[schemas.Drink]:
+    db_drinks = repositories.drink_repository.get_drinks_for(db, member_id)
+    return [schemas.Drink.model_validate(db_drink) for db_drink in db_drinks]
+
+
 @app.get("/events")
 def events(skip: int = 0, limit: int = 100, db=Depends(get_db)) -> list[schemas.Event]:
     db_events = repositories.event_repository.get_multi(db, skip=skip, limit=limit)
@@ -72,9 +82,9 @@ def events(skip: int = 0, limit: int = 100, db=Depends(get_db)) -> list[schemas.
 
 @app.post("/events")
 def create_event(
-    event: schemas.EventCreate,
-    _current_user: Annotated[models.Member, Depends(get_current_user)],
-    db=Depends(get_db)
+        event: schemas.EventCreate,
+        _current_user: Annotated[models.Member, Depends(get_current_user)],
+        db=Depends(get_db)
 ):
     db_event = repositories.event_repository.create(db, event)
     return schemas.Event.from_orm(db_event)
@@ -96,9 +106,9 @@ def get_event(id: int, db=Depends(get_db)) -> schemas.Event:
 
 @app.delete("/events/event/{id}")
 def delete_event(
-    id: int,
-    _current_user: Annotated[models.Member, Depends(get_current_user)],
-    db=Depends(get_db),
+        id: int,
+        _current_user: Annotated[models.Member, Depends(get_current_user)],
+        db=Depends(get_db),
 ) -> schemas.Event:
     try:
         db_event = repositories.event_repository.remove(db, id)
@@ -133,10 +143,10 @@ def participate(
 
 @app.delete("/events/{event_id}/participate")
 def remove_participant(
-    event_id: int,
-    member: int,
-    current_user: Annotated[models.Member, Depends(get_current_user)],
-    db=Depends(get_db)
+        event_id: int,
+        member: int,
+        current_user: Annotated[models.Member, Depends(get_current_user)],
+        db=Depends(get_db)
 ) -> schemas.Event:
     if current_user.id != member:
         raise HTTPException(status_code=403, detail="You can only remove your participation")
@@ -147,6 +157,21 @@ def remove_participant(
         raise HTTPException(status_code=400, detail=str(err))
 
 
+@app.get("/events/{event_id}/drinks")
+def get_drinks_for_event(
+        event_id: int,
+        grouped: bool = False,
+        db=Depends(get_db)
+) -> list[schemas.Drink] | dict[int, list[schemas.Drink]]:
+    db_drinks = repositories.drink_repository.get_drink_event(db, event_id)
+    if grouped:
+        d = defaultdict(list)
+        for drink in db_drinks:
+            d[drink.consumer_id].append(drink)
+        return d
+    return [schemas.Drink.model_validate(db_drink) for db_drink in db_drinks]
+
+
 @app.get("/quotes")
 def get_quotes(limit: int = 10, skip: int = 0, db=Depends(get_db)):
     db_quotes = repositories.quote_repository.get_multi(db, limit=limit, skip=skip)
@@ -155,16 +180,16 @@ def get_quotes(limit: int = 10, skip: int = 0, db=Depends(get_db)):
 
 @app.post("/quotes", response_model=schemas.Quote)
 def create_quote(
-    quote: schemas.QuoteCreate,
-    _current_user: Annotated[models.Member, Depends(get_current_user)],
-    db=Depends(get_db)
+        quote: schemas.QuoteCreate,
+        _current_user: Annotated[models.Member, Depends(get_current_user)],
+        db=Depends(get_db)
 ) -> schemas.Quote:
     db_quote = repositories.quote_repository.create(db, quote)
     return schemas.Quote.from_orm(db_quote)
 
 
 @app.get("/random_quote")
-def update_quote_of_the_day(db = Depends(get_db)) -> schemas.Quote:
+def update_quote_of_the_day(db=Depends(get_db)) -> schemas.Quote:
     db_quote = repositories.quote_repository.get_random(db)
     if db_quote is None:
         raise HTTPException(status_code=204, detail="There are no quotes yet")
@@ -207,3 +232,13 @@ async def read_users_me(
 @app.post("/auth/hash")
 def set_password(pw: str):
     return pwd_context.hash(pw)
+
+
+@app.post("/drinks")
+async def post_drink(
+        drink: schemas.DrinkCreate,
+        current_user: Annotated[models.Member, Depends(get_current_user)],
+        db=Depends(get_db)
+) -> schemas.Drink:
+    drink = repositories.drink_repository.create(db, drink)
+    return drink
