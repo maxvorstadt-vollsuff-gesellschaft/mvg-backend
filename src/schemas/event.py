@@ -10,7 +10,7 @@ class EventBase(BaseModel):
     name: str
     start_time: datetime
     location: Optional[str]
-    duration: Optional[int] = Field(None, description="Duration in Minutes")
+    duration: Optional[int] = Field(None, description="Duration in Minutes. Null means open end.")
 
 
 class EventCreate(EventBase):
