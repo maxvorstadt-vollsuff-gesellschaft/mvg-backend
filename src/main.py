@@ -67,7 +67,7 @@ async def shutdown() -> None:
 @app.get("/events/upcoming")
 def events(limit: int = 10, db=Depends(get_db)) -> list[schemas.Event]:
     db_events = repositories.event_repository.get_upcoming_events(db, limit=limit)
-    return [schemas.Event.from_orm(event) for event in db_events]
+    return [schemas.Event.model_validate(event) for event in db_events]
 
 
 @app.get("/upcoming_events")
@@ -75,7 +75,7 @@ def get_next_event(limit: int = 1, db=Depends(get_db)) -> list[schemas.Event]:
     db_events = repositories.event_repository.get_next_upcoming_event(db, limit=limit)
     if len(db_events) == 0:
         raise HTTPException(status_code=400, detail="No upcoming events found")
-    return [schemas.Event.from_orm(event) for event in db_events]
+    return [schemas.Event.model_validate(event) for event in db_events]
 
 
 @app.post("/token")
@@ -108,7 +108,7 @@ async def login_for_access_token(
 async def read_users_me(
         current_user: Annotated[models.Member, Depends(get_current_user)],
 ) -> schemas.Member:
-    return schemas.Member.from_orm(current_user)
+    return schemas.Member.model_validate(current_user)
 
 
 @app.post("/auth/hash")

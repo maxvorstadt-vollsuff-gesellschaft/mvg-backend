@@ -27,7 +27,7 @@ def create_quote(
         db=Depends(get_db)
 ) -> schemas.Quote:
     db_quote = repositories.quote_repository.create(db, quote)
-    return schemas.Quote.from_orm(db_quote)
+    return schemas.Quote.model_validate(db_quote)
 
 
 @router.get("/random_quote")
