@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
+from pydantic import Field
 from pydantic.main import BaseModel
 from .member import Member
 
@@ -9,6 +10,7 @@ class EventBase(BaseModel):
     name: str
     start_time: datetime
     location: Optional[str]
+    duration: Optional[int] = Field(None, description="Duration in Minutes")
 
 
 class EventCreate(EventBase):
