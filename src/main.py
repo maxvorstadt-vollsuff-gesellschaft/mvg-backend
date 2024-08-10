@@ -1,15 +1,15 @@
 import datetime
-from collections import defaultdict
 from typing import Annotated
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
 
+from . import routes
 from .auth_utils import get_current_user, create_access_token
 from .schemas.auth import Token
 from . import models
@@ -33,6 +33,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(routes.auth.router)
+app.include_router(routes.events.router)
+app.include_router(routes.member.router)
+app.include_router(routes.quotes.router)
 
 
 @app.on_event("startup")
@@ -59,62 +64,10 @@ async def shutdown() -> None:
     await database.database.disconnect()
 
 
-@app.get("/members")
-def members(db=Depends(get_db)) -> list[schemas.Member]:
-    db_members = repositories.member_repository.get_multi(db)
-    return [schemas.Member.from_orm(member) for member in db_members]
-
-
-@app.get("/members/{event_id}/drinks")
-def get_drinks_for_event(
-        member_id: int,
-        db=Depends(get_db)
-) -> list[schemas.Drink]:
-    db_drinks = repositories.drink_repository.get_drinks_for(db, member_id)
-    return [schemas.Drink.model_validate(db_drink) for db_drink in db_drinks]
-
-
-@app.get("/events")
-def events(skip: int = 0, limit: int = 100, db=Depends(get_db)) -> list[schemas.Event]:
-    db_events = repositories.event_repository.get_multi(db, skip=skip, limit=limit)
-    return [schemas.Event.from_orm(event) for event in db_events]
-
-
-@app.post("/events")
-def create_event(
-        event: schemas.EventCreate,
-        _current_user: Annotated[models.Member, Depends(get_current_user)],
-        db=Depends(get_db)
-):
-    db_event = repositories.event_repository.create(db, event)
-    return schemas.Event.from_orm(db_event)
-
-
 @app.get("/events/upcoming")
 def events(limit: int = 10, db=Depends(get_db)) -> list[schemas.Event]:
     db_events = repositories.event_repository.get_upcoming_events(db, limit=limit)
     return [schemas.Event.from_orm(event) for event in db_events]
-
-
-@app.get("/events/event/{id}")
-def get_event(id: int, db=Depends(get_db)) -> schemas.Event:
-    db_event = repositories.event_repository.get(db, id)
-    if not db_event:
-        raise HTTPException(status_code=404)
-    return schemas.Event.from_orm(db_event)
-
-
-@app.delete("/events/event/{id}")
-def delete_event(
-        id: int,
-        _current_user: Annotated[models.Member, Depends(get_current_user)],
-        db=Depends(get_db),
-) -> schemas.Event:
-    try:
-        db_event = repositories.event_repository.remove(db, id)
-    except ValueError:
-        raise HTTPException(status_code=404, detail="Event does not exist")
-    return schemas.Event.from_orm(db_event)
 
 
 @app.get("/upcoming_events")
@@ -123,77 +76,6 @@ def get_next_event(limit: int = 1, db=Depends(get_db)) -> list[schemas.Event]:
     if len(db_events) == 0:
         raise HTTPException(status_code=400, detail="No upcoming events found")
     return [schemas.Event.from_orm(event) for event in db_events]
-
-
-@app.post("/events/{event_id}/participate")
-def participate(
-        event_id: int,
-        member: int,
-        current_user: Annotated[models.Member, Depends(get_current_user)],
-        db=Depends(get_db)
-) -> schemas.Event:
-    if current_user.id != member:
-        raise HTTPException(status_code=403, detail="You can only sign up yourself!")
-    try:
-        db_event = repositories.event_repository.participate(db, event_id, member)
-        return schemas.Event.from_orm(db_event)
-    except ValueError as err:
-        raise HTTPException(status_code=400, detail=str(err))
-
-
-@app.delete("/events/{event_id}/participate")
-def remove_participant(
-        event_id: int,
-        member: int,
-        current_user: Annotated[models.Member, Depends(get_current_user)],
-        db=Depends(get_db)
-) -> schemas.Event:
-    if current_user.id != member:
-        raise HTTPException(status_code=403, detail="You can only remove your participation")
-    try:
-        db_event = repositories.event_repository.remove_participant(db, event_id, member)
-        return schemas.Event.from_orm(db_event)
-    except ValueError as err:
-        raise HTTPException(status_code=400, detail=str(err))
-
-
-@app.get("/events/{event_id}/drinks")
-def get_drinks_for_event(
-        event_id: int,
-        grouped: bool = False,
-        db=Depends(get_db)
-) -> list[schemas.Drink] | dict[int, list[schemas.Drink]]:
-    db_drinks = repositories.drink_repository.get_drink_event(db, event_id)
-    if grouped:
-        d = defaultdict(list)
-        for drink in db_drinks:
-            d[drink.consumer_id].append(drink)
-        return d
-    return [schemas.Drink.model_validate(db_drink) for db_drink in db_drinks]
-
-
-@app.get("/quotes")
-def get_quotes(limit: int = 10, skip: int = 0, db=Depends(get_db)):
-    db_quotes = repositories.quote_repository.get_multi(db, limit=limit, skip=skip)
-    return [schemas.Quote.from_orm(db_quote) for db_quote in db_quotes]
-
-
-@app.post("/quotes", response_model=schemas.Quote)
-def create_quote(
-        quote: schemas.QuoteCreate,
-        _current_user: Annotated[models.Member, Depends(get_current_user)],
-        db=Depends(get_db)
-) -> schemas.Quote:
-    db_quote = repositories.quote_repository.create(db, quote)
-    return schemas.Quote.from_orm(db_quote)
-
-
-@app.get("/random_quote")
-def update_quote_of_the_day(db=Depends(get_db)) -> schemas.Quote:
-    db_quote = repositories.quote_repository.get_random(db)
-    if db_quote is None:
-        raise HTTPException(status_code=204, detail="There are no quotes yet")
-    return schemas.Quote.from_orm(db_quote)
 
 
 @app.post("/token")
