@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-config
-  namespace: mvg
+  namespace: aperol
   labels:
     app: postgres
 data:

@@ -23,7 +23,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 models.Base.metadata.create_all(bind=engine)
 
 origins = [
-    "https://mvg.life",
+    "https://aperol.life",
     "http://localhost:3000",
 ]
 
