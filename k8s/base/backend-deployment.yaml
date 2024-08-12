@@ -24,5 +24,10 @@ spec:
                 configMapKeyRef:
                   name: backend-config
                   key: DATABASE_URL
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-key
+                  key: jwt_key
       imagePullSecrets:
         - name: ghcr-credentials
