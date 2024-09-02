@@ -24,4 +24,5 @@ def create_event(
         chugs: schemas.UploadChug,
         db=Depends(get_db)
 ):
-    pass
+    for i in range(len(chugs.id)):
+        repositories.chug_repository.create(db, {"member_id": chugs.id[i], "time": chugs.time[i]})
