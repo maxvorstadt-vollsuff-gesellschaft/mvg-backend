@@ -39,6 +39,7 @@ app.include_router(routes.auth.router)
 app.include_router(routes.events.router)
 app.include_router(routes.member.router)
 app.include_router(routes.quotes.router)
+app.include_router(routes.chug.router)
 
 
 @app.on_event("startup")
