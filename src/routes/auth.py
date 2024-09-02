@@ -8,8 +8,3 @@ router = APIRouter(
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-@router.post("/hash")
-def set_password(pw: str):
-    return pwd_context.hash(pw)
