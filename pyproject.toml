@@ -18,6 +18,8 @@ apscheduler = "^3.10.4"
 pyjwt = "^2.8.0"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-multipart = "^0.0.9"
+fastapi-keycloak = "^1.0.11"
+cachetools = "^5.5.0"
 
 
 

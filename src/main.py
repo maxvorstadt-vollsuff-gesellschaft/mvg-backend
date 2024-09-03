@@ -10,8 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
 
 from . import routes
-from .auth_utils import get_current_user, create_access_token
-from .schemas.auth import Token
+from .auth_utils import get_current_user
 from . import models
 from . import schemas
 from . import repositories
@@ -78,32 +77,6 @@ def get_next_event(limit: int = 1, db=Depends(get_db)) -> list[schemas.Event]:
     if len(db_events) == 0:
         raise HTTPException(status_code=400, detail="No upcoming events found")
     return [schemas.Event.model_validate(event) for event in db_events]
-
-
-@app.post("/token")
-async def login_for_access_token(
-        form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-        db: Session = Depends(get_db)
-) -> Token:
-    exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Incorrect username or password",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    user_auth = repositories.auth_repository.get_by_username(db, form_data.username)
-
-    if user_auth is None:
-        raise exception
-
-    if not pwd_context.verify(form_data.password, user_auth.pw_hash):
-        raise exception
-
-    access_token = create_access_token(
-        data={"sub": user_auth.member_id},
-        key="abc"
-    )
-
-    return Token(access_token=access_token, token_type="bearer")
 
 
 @app.get("/users/me/", response_model=schemas.Member)
