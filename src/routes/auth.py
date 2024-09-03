@@ -53,10 +53,10 @@ def refresh_token(
     })
 
     if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail="Failed to refresh token")
+        raise HTTPException(status_code=response.status_code, detail=response.text)
 
     if not refresh_token:
-        raise HTTPException(status_code=401, detail="Refresh token not provided")
+        raise HTTPException(status_code=401, detail=response.text)
 
     token_response = response.json()
     return JSONResponse(content={
