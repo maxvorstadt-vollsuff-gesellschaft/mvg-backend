@@ -1,10 +1,7 @@
-from typing import Annotated
-
 from fastapi import APIRouter, Depends
 
 from .. import repositories
 from .. import schemas
-from ..auth_utils import get_current_user
 from ..database import get_db
 
 router = APIRouter(
