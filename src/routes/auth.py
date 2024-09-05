@@ -63,3 +63,8 @@ def refresh_token(
         "access_token": token_response['access_token'],
         "refresh_token": token_response.get('refresh_token', refresh_token),
     })
+
+
+@router.post("/logout")
+def logout():
+    idp.logout_uri

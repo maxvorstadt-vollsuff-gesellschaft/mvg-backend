@@ -7,7 +7,6 @@ from fastapi.security import OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
-from starlette import status
 
 from . import routes
 from .auth_utils import get_current_user
@@ -39,6 +38,7 @@ app.include_router(routes.events.router)
 app.include_router(routes.member.router)
 app.include_router(routes.quotes.router)
 app.include_router(routes.chug.router)
+app.include_router(routes.card.router)
 
 
 @app.on_event("startup")
