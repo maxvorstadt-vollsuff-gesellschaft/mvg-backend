@@ -2,8 +2,7 @@ import datetime
 from typing import Annotated
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from fastapi import FastAPI, Depends, HTTPException, Query
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import FastAPI, Depends, HTTPException
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
