@@ -22,7 +22,8 @@ def create_event(
         db=Depends(get_db)
 ):
     for i in range(len(chugs.id)):
-        repositories.chug_repository.create(db, {"member_id": chugs.id[i], "time": chugs.time[i]})
+        card = repositories.card_repository.get_by_card_uid(db, chugs.id[i])
+        repositories.chug_repository.create(db, {"member_id": card.member_id, "time": chugs.time[i]})
 
 
 @router.get("/top-player")
