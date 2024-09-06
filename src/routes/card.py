@@ -21,3 +21,7 @@ def get_cards(db: Session = Depends(get_db)):
 @router.post("")
 def create_card(card: CreateCard, db: Session = Depends(get_db)):
     return card_repository.create(db, card)
+
+@router.delete("/{member_id}")
+def delete_card(member_id: int, db: Session = Depends(get_db)):
+    return card_repository.remove(db, member_id)
