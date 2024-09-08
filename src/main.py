@@ -22,6 +22,8 @@ models.Base.metadata.create_all(bind=engine)
 origins = [
     "https://aperol.life",
     "http://localhost:3000",
+    "https://nfconnect.pages.dev",
+    "https://register.aperol.life"
 ]
 
 
