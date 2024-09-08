@@ -11,5 +11,5 @@ class BaseChug(BaseModel):
 
 
 class UploadChug(BaseModel):
-    id: list[int]
+    id: list[str]
     time: list[int]

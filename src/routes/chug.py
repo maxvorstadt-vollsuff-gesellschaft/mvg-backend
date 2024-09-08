@@ -23,6 +23,8 @@ def create_event(
 ):
     for i in range(len(chugs.id)):
         card = repositories.card_repository.get_by_card_uid(db, chugs.id[i])
+        if not card:
+            continue
         repositories.chug_repository.create(db, {"member_id": card.member_id, "time": chugs.time[i]})
 
 
