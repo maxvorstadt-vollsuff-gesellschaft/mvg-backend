@@ -4,7 +4,7 @@ from typing import Optional
 from enum import Enum as PyEnum
 
 from .base import Base
-from .member import Member  # Assuming you have a Member model
+from .member import Member  
 
 class TimeOfDay(PyEnum):
     BREAKFAST = "breakfast"

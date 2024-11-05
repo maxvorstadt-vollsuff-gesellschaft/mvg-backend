@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, List
 
 from pydantic import BaseModel, Field
-from .member import Member  # Assuming you have a Member model similar to the Event schema
+from .member import Member  
 
 class RecipeBase(BaseModel):
     name: str
