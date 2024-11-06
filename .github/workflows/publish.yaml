@@ -5,7 +5,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: linuseing/aperol-backend
+  IMAGE_NAME: linuseing/mvg-backend
 
 jobs:
   build-and-push-image:
@@ -54,4 +54,4 @@ jobs:
 
       - name: Roll out new image
         run: |
-          kubectl set image -n aperol deployment/aperol-backend backend=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}        
+          kubectl set image -n mvg deployment/mvg-backend backend=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}        
