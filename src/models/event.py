@@ -24,4 +24,4 @@ class Event(Base):
     location: Mapped[str] = mapped_column(String)
     author_id: Mapped[int] = mapped_column(Integer, ForeignKey("members.id"), nullable=False)
     author: Mapped["Member"] = relationship("Member", back_populates="events")
-    duration: Mapped[int] = mapped_column(Integer, nullable=False)  # duration in minutes, null=open ended
+    duration: Mapped[int] = mapped_column(Integer, nullable=True)  # duration in minutes, null=open ended

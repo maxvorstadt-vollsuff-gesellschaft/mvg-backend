@@ -5,3 +5,5 @@ from .quote import Quote
 from .quote_rotation import QuoteRotation
 from .auth import Auth
 from .drink import Drink
+from .chug import Chug
+from .cards import Card

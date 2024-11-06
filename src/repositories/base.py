@@ -17,7 +17,9 @@ class CRUDBase(Generic[ModelType]):
 
     def create(self, db: Session, obj_in) -> ModelType:
         db_obj = obj_in
-        if type(obj_in) is not self.model:
+        if type(obj_in) is dict:
+            db_obj = self.model(**obj_in)
+        elif type(obj_in) is not self.model:
             db_obj = self.model(**obj_in.__dict__)
         db.add(db_obj)
         db.commit()

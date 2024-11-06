@@ -4,3 +4,5 @@ from .quote import quote_repository
 from .quote_rotation import rotation_repository
 from .auth import auth_repository
 from .drink import drink_repository
+from .chug import chug_repository
+from .card import card_repository

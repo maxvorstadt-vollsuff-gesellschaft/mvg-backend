@@ -2,9 +2,8 @@ import datetime
 import os
 from typing import Union, Annotated
 
-import jwt
 from fastapi import HTTPException, Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi_keycloak import OIDCUser
 from jwt import InvalidTokenError
 from sqlalchemy.orm import Session
 from starlette import status
@@ -13,24 +12,21 @@ from .database import get_db
 from . import repositories
 from . import models
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-SECRET_KEY = os.environ.get("JWT_KEY")
+from fastapi_keycloak import FastAPIKeycloak
 
-
-def create_access_token(data: dict, key: str, expires_delta: Union[datetime.timedelta, None] = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.datetime.now(datetime.timezone.utc) + expires_delta
-    else:
-        expire = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=500)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
-    return encoded_jwt
+idp = FastAPIKeycloak(
+    server_url="https://auth.toskana-fraktion.social/auth",
+    client_id="aperol-life",
+    client_secret=os.environ.get("KC_CLIENT_SECRET"),
+    realm="toskana-fraktion",
+    admin_client_secret=os.environ.get("KC_ADMIN_SECRET"),
+    callback_uri=os.environ.get("KC_CALLBACK") # http://localhost:8000/auth/callback
+)
 
 
 async def get_current_user(
-        token: Annotated[str, Depends(oauth2_scheme)],
-        db: Annotated[Session, Depends(get_db)]
+        db: Annotated[Session, Depends(get_db)],
+        user: OIDCUser = Depends(idp.get_current_user()),
 ) -> models.Member:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -38,11 +34,7 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        user_id: int = payload.get("sub")
-        if user_id is None:
-            raise credentials_exception
-        user = repositories.member_repository.get(db, user_id)
+        user = repositories.member_repository.get_sub(db, user.sub)
         if user is None:
             raise credentials_exception
         return user

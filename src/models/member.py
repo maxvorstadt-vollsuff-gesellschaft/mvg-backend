@@ -22,6 +22,7 @@ class Member(Base):
     __tablename__ = 'members'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_sub: Mapped[str] = mapped_column(String, index=True, unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String)
     participated_in: Mapped[List["Event"]] = relationship(
         "Event",
