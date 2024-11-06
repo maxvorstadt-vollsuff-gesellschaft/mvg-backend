@@ -46,7 +46,7 @@ async def get_current_user(
     except InvalidTokenError:
         raise credentials_exception
 
-async def get_current_user_with_roles(
+def get_current_user_with_roles(
         required_roles: list[str] = []
 ) -> models.Member:
     async def inner(
