@@ -5,7 +5,7 @@ from typing import Annotated
 from .. import models
 from .. import repositories
 from .. import schemas
-from ..auth_utils import get_current_user
+from ..auth_utils import get_current_user, get_current_user_with_roles
 from ..database import get_db
 
 router = APIRouter(
@@ -16,7 +16,7 @@ router = APIRouter(
 @router.post("")
 def create_recipe(
     recipe: schemas.RecipeCreate,
-    current_user: Annotated[models.Member, Depends(get_current_user(required_roles=["mvg-member"]))],
+    current_user: Annotated[models.Member, Depends(get_current_user_with_roles(required_roles=["mvg-member"]))],
     db: Session = Depends(get_db)
 ):
     try:

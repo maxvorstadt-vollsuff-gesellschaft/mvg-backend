@@ -27,7 +27,6 @@ idp = FastAPIKeycloak(
 async def get_current_user(
         db: Annotated[Session, Depends(get_db)],
         user: OIDCUser = Depends(idp.get_current_user()),
-        required_roles: list[str] = []
 ) -> models.Member:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -47,3 +46,12 @@ async def get_current_user(
     except InvalidTokenError:
         raise credentials_exception
 
+async def get_current_user_with_roles(
+        required_roles: list[str] = []
+) -> models.Member:
+    async def inner(
+            db: Annotated[Session, Depends(get_db)],
+            user: OIDCUser = Depends(idp.get_current_user(required_roles=required_roles))
+    ):
+        return await get_current_user(db, user)
+    return inner
