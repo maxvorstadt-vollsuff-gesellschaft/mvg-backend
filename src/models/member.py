@@ -33,4 +33,4 @@ class Member(Base):
     )
     quotes: Mapped[List["Quote"]] = relationship("Quote", lazy='select', back_populates="author")
     events: Mapped[List["Event"]] = relationship("Event", lazy='select', back_populates="author")
-    recipes: Mapped[list[Recipe]] = relationship("Recipe", back_populates="author")
+    recipes: Mapped[list["Recipe"]] = relationship("Recipe", back_populates="author")

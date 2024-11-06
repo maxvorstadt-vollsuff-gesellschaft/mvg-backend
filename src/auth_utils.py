@@ -17,10 +17,10 @@ from fastapi_keycloak import FastAPIKeycloak
 idp = FastAPIKeycloak(
     server_url="https://auth.toskana-fraktion.social/auth",
     client_id="mvg-life",
-    client_secret=os.environ.get("KC_CLIENT_SECRET").strip(),
+    client_secret=os.environ.get("KC_CLIENT_SECRET", "").strip(),
     realm="toskana-fraktion",
-    admin_client_secret=os.environ.get("KC_ADMIN_SECRET").strip(),
-    callback_uri=os.environ.get("KC_CALLBACK").strip() # http://localhost:8000/auth/callback
+    admin_client_secret=os.environ.get("KC_ADMIN_SECRET", "").strip(),
+    callback_uri=os.environ.get("KC_CALLBACK", "").strip() # http://localhost:8000/auth/callback
 )
 
 

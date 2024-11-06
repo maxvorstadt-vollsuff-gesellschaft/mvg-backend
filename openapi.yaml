@@ -1,0 +1,916 @@
+openapi: 3.1.0
+info:
+  title: FastAPI
+  version: 0.1.0
+paths:
+  /auth/login:
+    get:
+      tags:
+      - auth
+      summary: Login Redirect
+      operationId: login_redirect_auth_login_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /auth/callback:
+    get:
+      tags:
+      - auth
+      summary: Callback
+      operationId: callback_auth_callback_get
+      parameters:
+      - name: session_state
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Session State
+      - name: code
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Code
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/refresh:
+    post:
+      tags:
+      - auth
+      summary: Refresh Token
+      operationId: refresh_token_auth_refresh_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/logout:
+    post:
+      tags:
+      - auth
+      summary: Logout
+      operationId: logout_auth_logout_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /events:
+    get:
+      tags:
+      - events
+      summary: Events
+      operationId: events_events_get
+      parameters:
+      - name: skip
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Skip
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+                title: Response Events Events Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - events
+      summary: Create Event
+      operationId: create_event_events_post
+      parameters:
+      - name: args
+        in: query
+        required: true
+        schema:
+          title: Args
+      - name: kwargs
+        in: query
+        required: true
+        schema:
+          title: Kwargs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /events/event/{id}:
+    get:
+      tags:
+      - events
+      summary: Get Event
+      operationId: get_event_events_event__id__get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - events
+      summary: Delete Event
+      operationId: delete_event_events_event__id__delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Id
+      - name: args
+        in: query
+        required: true
+        schema:
+          title: Args
+      - name: kwargs
+        in: query
+        required: true
+        schema:
+          title: Kwargs
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /events/{event_id}/participate:
+    post:
+      tags:
+      - events
+      summary: Participate
+      operationId: participate_events__event_id__participate_post
+      parameters:
+      - name: event_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Event Id
+      - name: member
+        in: query
+        required: true
+        schema:
+          type: integer
+          title: Member
+      - name: args
+        in: query
+        required: true
+        schema:
+          title: Args
+      - name: kwargs
+        in: query
+        required: true
+        schema:
+          title: Kwargs
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - events
+      summary: Remove Participant
+      operationId: remove_participant_events__event_id__participate_delete
+      parameters:
+      - name: event_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Event Id
+      - name: member
+        in: query
+        required: true
+        schema:
+          type: integer
+          title: Member
+      - name: args
+        in: query
+        required: true
+        schema:
+          title: Args
+      - name: kwargs
+        in: query
+        required: true
+        schema:
+          title: Kwargs
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /events/{event_id}/drinks:
+    get:
+      tags:
+      - events
+      - drinks
+      summary: Get Drinks For Event
+      operationId: get_drinks_for_event_events__event_id__drinks_get
+      parameters:
+      - name: event_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Event Id
+      - name: grouped
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Grouped
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - type: array
+                  items:
+                    $ref: '#/components/schemas/Drink'
+                - type: object
+                  additionalProperties:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Drink'
+                title: Response Get Drinks For Event Events  Event Id  Drinks Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /events/upcoming:
+    get:
+      tags:
+      - events
+      summary: Events
+      operationId: events_events_upcoming_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 10
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+                title: Response Events Events Upcoming Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /members:
+    get:
+      tags:
+      - members
+      summary: Members
+      operationId: members_members_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Member'
+                type: array
+                title: Response Members Members Get
+  /members/{member_id}/drinks:
+    get:
+      tags:
+      - members
+      - drinks
+      summary: Get Drinks For Event
+      operationId: get_drinks_for_event_members__member_id__drinks_get
+      parameters:
+      - name: member_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Member Id
+      - name: grouped
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Group drinks consumed by event_id
+          default: false
+          title: Grouped
+        description: Group drinks consumed by event_id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - type: array
+                  items:
+                    $ref: '#/components/schemas/Drink'
+                - type: object
+                  additionalProperties:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Drink'
+                title: Response Get Drinks For Event Members  Member Id  Drinks Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /quotes:
+    get:
+      tags:
+      - quotes
+      summary: Get Quotes
+      operationId: get_quotes_quotes_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 10
+          title: Limit
+      - name: skip
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Skip
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - quotes
+      summary: Create Quote
+      operationId: create_quote_quotes_post
+      parameters:
+      - name: args
+        in: query
+        required: true
+        schema:
+          title: Args
+      - name: kwargs
+        in: query
+        required: true
+        schema:
+          title: Kwargs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quote'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /quotes/random_quote:
+    get:
+      tags:
+      - quotes
+      summary: Quote Of The Day
+      operationId: quote_of_the_day_quotes_random_quote_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quote'
+  /chugs:
+    get:
+      tags:
+      - chugging
+      summary: Events
+      operationId: events_chugs_get
+      parameters:
+      - name: skip
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Skip
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BaseChug'
+                title: Response Events Chugs Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - chugging
+      summary: Create Event
+      operationId: create_event_chugs_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadChug'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /chugs/top-player:
+    get:
+      tags:
+      - chugging
+      summary: Top Player
+      operationId: top_player_chugs_top_player_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 10
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BaseChug'
+                title: Response Top Player Chugs Top Player Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /card:
+    get:
+      tags:
+      - card
+      summary: Get Cards
+      operationId: get_cards_card_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+    post:
+      tags:
+      - card
+      summary: Create Card
+      operationId: create_card_card_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCard'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /card/{member_id}:
+    delete:
+      tags:
+      - card
+      summary: Delete Card
+      operationId: delete_card_card__member_id__delete
+      parameters:
+      - name: member_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Member Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    BaseChug:
+      properties:
+        member:
+          $ref: '#/components/schemas/Member'
+        time:
+          type: integer
+          title: Time
+      type: object
+      required:
+      - member
+      - time
+      title: BaseChug
+    CreateCard:
+      properties:
+        member_id:
+          type: integer
+          title: Member Id
+        card_uid:
+          type: string
+          title: Card Uid
+      type: object
+      required:
+      - member_id
+      - card_uid
+      title: CreateCard
+    Drink:
+      properties:
+        drink:
+          type: string
+          title: Drink
+        ml_alc:
+          type: integer
+          title: Ml Alc
+        id:
+          type: integer
+          title: Id
+        time:
+          type: string
+          format: date-time
+          title: Time
+        consumer:
+          $ref: '#/components/schemas/Member'
+        event:
+          $ref: '#/components/schemas/Event'
+      type: object
+      required:
+      - drink
+      - ml_alc
+      - id
+      - time
+      - consumer
+      - event
+      title: Drink
+    Event:
+      properties:
+        name:
+          type: string
+          title: Name
+        start_time:
+          type: string
+          format: date-time
+          title: Start Time
+        location:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location
+        duration:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Duration
+          description: Duration in Minutes. Null means open end.
+        id:
+          type: integer
+          title: Id
+        participants:
+          items:
+            $ref: '#/components/schemas/Member'
+          type: array
+          title: Participants
+        author:
+          anyOf:
+          - $ref: '#/components/schemas/Member'
+          - type: 'null'
+      type: object
+      required:
+      - name
+      - start_time
+      - location
+      - id
+      - participants
+      - author
+      title: Event
+    EventCreate:
+      properties:
+        name:
+          type: string
+          title: Name
+        start_time:
+          type: string
+          format: date-time
+          title: Start Time
+        location:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location
+        duration:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Duration
+          description: Duration in Minutes. Null means open end.
+        author_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Author Id
+      type: object
+      required:
+      - name
+      - start_time
+      - location
+      - author_id
+      title: EventCreate
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Member:
+      properties:
+        name:
+          type: string
+          title: Name
+        id:
+          type: integer
+          title: Id
+      type: object
+      required:
+      - name
+      - id
+      title: Member
+    Quote:
+      properties:
+        quote:
+          type: string
+          title: Quote
+        date:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Date
+        location:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location
+        id:
+          type: integer
+          title: Id
+        author:
+          $ref: '#/components/schemas/Member'
+      type: object
+      required:
+      - quote
+      - date
+      - location
+      - id
+      - author
+      title: Quote
+    QuoteCreate:
+      properties:
+        quote:
+          type: string
+          title: Quote
+        date:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Date
+        location:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location
+        author_id:
+          type: integer
+          title: Author Id
+      type: object
+      required:
+      - quote
+      - date
+      - location
+      - author_id
+      title: QuoteCreate
+    TokenRefreshRequest:
+      properties:
+        refresh_token:
+          type: string
+          title: Refresh Token
+      type: object
+      required:
+      - refresh_token
+      title: TokenRefreshRequest
+    UploadChug:
+      properties:
+        id:
+          items:
+            type: string
+          type: array
+          title: Id
+        time:
+          items:
+            type: integer
+          type: array
+          title: Time
+      type: object
+      required:
+      - id
+      - time
+      title: UploadChug
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
