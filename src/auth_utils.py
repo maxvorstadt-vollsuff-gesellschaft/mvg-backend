@@ -27,12 +27,18 @@ idp = FastAPIKeycloak(
 async def get_current_user(
         db: Annotated[Session, Depends(get_db)],
         user: OIDCUser = Depends(idp.get_current_user()),
+        required_roles: list[str] = []
 ) -> models.Member:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    
+    if not user.roles.issubset(required_roles):
+        print(user.roles, required_roles)
+        raise credentials_exception
+    
     try:
         user = repositories.member_repository.get_sub(db, user.sub)
         if user is None:

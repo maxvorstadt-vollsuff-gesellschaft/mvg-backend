@@ -16,7 +16,7 @@ router = APIRouter(
 @router.post("")
 def create_recipe(
     recipe: schemas.RecipeCreate,
-    _current_user: Annotated[models.Member, Depends(get_current_user)],
+    current_user: Annotated[models.Member, Depends(get_current_user(required_roles=["mvg-member"]))],
     db: Session = Depends(get_db)
 ):
     try:
