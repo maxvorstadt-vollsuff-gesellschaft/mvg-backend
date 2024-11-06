@@ -6,3 +6,4 @@ from .auth import auth_repository
 from .drink import drink_repository
 from .chug import chug_repository
 from .card import card_repository
+from .recipe import recipe_repository
