@@ -16,7 +16,7 @@ from fastapi_keycloak import FastAPIKeycloak
 
 idp = FastAPIKeycloak(
     server_url="https://auth.toskana-fraktion.social/auth",
-    client_id="aperol-life",
+    client_id="mvg-life",
     client_secret=os.environ.get("KC_CLIENT_SECRET"),
     realm="toskana-fraktion",
     admin_client_secret=os.environ.get("KC_ADMIN_SECRET"),
