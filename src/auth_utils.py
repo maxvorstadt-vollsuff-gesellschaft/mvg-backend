@@ -34,10 +34,6 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     
-    if not user.roles.issubset(required_roles):
-        print(user.roles, required_roles)
-        raise credentials_exception
-    
     try:
         user = repositories.member_repository.get_sub(db, user.sub)
         if user is None:
