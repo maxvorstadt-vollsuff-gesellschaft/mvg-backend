@@ -1,13 +1,13 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: aperol-backend-ingress
-  namespace: aperol
+  name: mvg-backend-ingress
+  namespace: mvg
 spec:
   entryPoints:
     - websecure
   routes:
-  - match: Host(`api.aperol.life`)
+  - match: Host(`api.mvg.life`)
     kind: Rule
     services:
     - name: backend-service

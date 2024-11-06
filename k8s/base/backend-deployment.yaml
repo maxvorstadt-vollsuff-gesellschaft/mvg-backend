@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: aperol-backend
-  namespace: aperol
+  name: mvg-backend
+  namespace: mvg
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: aperol-backend
+      app: mvg-backend
   template:
     metadata:
       labels:
-        app: aperol-backend
+        app: mvg-backend
     spec:
       containers:
         - name: backend
-          image: ghcr.io/linuseing/aperol-backend:latest
+          image: ghcr.io/linuseing/mvg-backend:latest
           ports:
             - containerPort: 80
           env:
