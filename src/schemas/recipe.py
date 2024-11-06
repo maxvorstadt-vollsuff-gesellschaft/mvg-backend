@@ -25,4 +25,4 @@ class Recipe(RecipeBase):
     author: Optional[Member]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
