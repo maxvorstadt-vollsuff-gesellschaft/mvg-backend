@@ -31,6 +31,6 @@ spec:
                   key: jwt_key
           envFrom:
             - secretRef:
-                name: kc-secret
+                name: kc-config
       imagePullSecrets:
         - name: ghcr-credentials
