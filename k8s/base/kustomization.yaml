@@ -9,4 +9,4 @@ resources:
   - backend-deployment.yaml
   - ingres.yaml
 
-namespace: aperol
+namespace: mvg

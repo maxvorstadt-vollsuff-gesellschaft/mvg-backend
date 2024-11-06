@@ -20,10 +20,10 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 models.Base.metadata.create_all(bind=engine)
 
 origins = [
-    "https://aperol.life",
+    "https://mvg.life",
     "http://localhost:3000",
     "https://nfconnect.pages.dev",
-    "https://register.aperol.life"
+    "https://register.mvg.life"
 ]
 
 
