@@ -38,7 +38,7 @@ def get_recipe(recipe_id: int, db: Session = Depends(get_db)) -> schemas.Recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
     return schemas.Recipe.from_orm(db_recipe)
 
-@router.get("/all")
+@router.get("")
 def get_all_recipes(db: Session = Depends(get_db)) -> list[schemas.Recipe]:
     db_recipes = repositories.recipe_repository.get_all(db)
     return [schemas.Recipe.from_orm(recipe) for recipe in db_recipes]
