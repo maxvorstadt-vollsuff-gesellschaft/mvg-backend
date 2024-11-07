@@ -6,9 +6,10 @@ paths:
   /auth/login:
     get:
       tags:
-      - auth
+        - auth
+        - mvg
       summary: Login Redirect
-      operationId: login_redirect_auth_login_get
+      operationId: redirect_to_login
       responses:
         '200':
           description: Successful Response
@@ -18,22 +19,23 @@ paths:
   /auth/callback:
     get:
       tags:
-      - auth
+        - auth
+        - mvg
       summary: Callback
-      operationId: callback_auth_callback_get
+      operationId: process_oauth_callback
       parameters:
-      - name: session_state
-        in: query
-        required: true
-        schema:
-          type: string
-          title: Session State
-      - name: code
-        in: query
-        required: true
-        schema:
-          type: string
-          title: Code
+        - name: session_state
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Session State
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Code
       responses:
         '200':
           description: Successful Response
@@ -49,9 +51,10 @@ paths:
   /auth/refresh:
     post:
       tags:
-      - auth
+        - auth
+        - mvg
       summary: Refresh Token
-      operationId: refresh_token_auth_refresh_post
+      operationId: refresh_access_token
       requestBody:
         content:
           application/json:
@@ -73,36 +76,54 @@ paths:
   /auth/logout:
     post:
       tags:
-      - auth
+        - auth
+        - mvg
       summary: Logout
-      operationId: logout_auth_logout_post
+      operationId: logout_user
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
               schema: {}
+  /auth/me:
+    get:
+      tags:
+        - auth
+        - mvg
+      summary: Read Users Me
+      operationId: read_current_user
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+      security:
+        - OAuth2PasswordBearer: []
   /events:
     get:
       tags:
-      - events
+        - events
+        - mvg
       summary: Events
-      operationId: events_events_get
+      operationId: list_events
       parameters:
-      - name: skip
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 0
-          title: Skip
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 100
-          title: Limit
+        - name: skip
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            title: Skip
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 100
+            title: Limit
       responses:
         '200':
           description: Successful Response
@@ -112,7 +133,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Event'
-                title: Response Events Events Get
+                title: Response List Events
         '422':
           description: Validation Error
           content:
@@ -121,20 +142,12 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     post:
       tags:
-      - events
+        - events
+        - mvg
       summary: Create Event
-      operationId: create_event_events_post
-      parameters:
-      - name: args
-        in: query
-        required: true
-        schema:
-          title: Args
-      - name: kwargs
-        in: query
-        required: true
-        schema:
-          title: Kwargs
+      operationId: create_event
+      security:
+        - OAuth2PasswordBearer: []
       requestBody:
         required: true
         content:
@@ -156,16 +169,17 @@ paths:
   /events/event/{id}:
     get:
       tags:
-      - events
+        - events
+        - mvg
       summary: Get Event
-      operationId: get_event_events_event__id__get
+      operationId: get_event_by_id
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          title: Id
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Id
       responses:
         '200':
           description: Successful Response
@@ -181,26 +195,19 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
       tags:
-      - events
+        - events
+        - mvg
       summary: Delete Event
-      operationId: delete_event_events_event__id__delete
+      operationId: delete_event_by_id
+      security:
+        - OAuth2PasswordBearer: []
       parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          title: Id
-      - name: args
-        in: query
-        required: true
-        schema:
-          title: Args
-      - name: kwargs
-        in: query
-        required: true
-        schema:
-          title: Kwargs
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Id
       responses:
         '200':
           description: Successful Response
@@ -217,32 +224,25 @@ paths:
   /events/{event_id}/participate:
     post:
       tags:
-      - events
+        - events
+        - mvg
       summary: Participate
-      operationId: participate_events__event_id__participate_post
+      operationId: add_event_participant
+      security:
+        - OAuth2PasswordBearer: []
       parameters:
-      - name: event_id
-        in: path
-        required: true
-        schema:
-          type: integer
-          title: Event Id
-      - name: member
-        in: query
-        required: true
-        schema:
-          type: integer
-          title: Member
-      - name: args
-        in: query
-        required: true
-        schema:
-          title: Args
-      - name: kwargs
-        in: query
-        required: true
-        schema:
-          title: Kwargs
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Event Id
+        - name: member
+          in: query
+          required: true
+          schema:
+            type: integer
+            title: Member
       responses:
         '200':
           description: Successful Response
@@ -258,32 +258,25 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     delete:
       tags:
-      - events
+        - events
+        - mvg
       summary: Remove Participant
-      operationId: remove_participant_events__event_id__participate_delete
+      operationId: remove_event_participant
+      security:
+        - OAuth2PasswordBearer: []
       parameters:
-      - name: event_id
-        in: path
-        required: true
-        schema:
-          type: integer
-          title: Event Id
-      - name: member
-        in: query
-        required: true
-        schema:
-          type: integer
-          title: Member
-      - name: args
-        in: query
-        required: true
-        schema:
-          title: Args
-      - name: kwargs
-        in: query
-        required: true
-        schema:
-          title: Kwargs
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Event Id
+        - name: member
+          in: query
+          required: true
+          schema:
+            type: integer
+            title: Member
       responses:
         '200':
           description: Successful Response
@@ -300,24 +293,24 @@ paths:
   /events/{event_id}/drinks:
     get:
       tags:
-      - events
-      - drinks
+        - events
+        - mvg
       summary: Get Drinks For Event
-      operationId: get_drinks_for_event_events__event_id__drinks_get
+      operationId: list_event_drinks
       parameters:
-      - name: event_id
-        in: path
-        required: true
-        schema:
-          type: integer
-          title: Event Id
-      - name: grouped
-        in: query
-        required: false
-        schema:
-          type: boolean
-          default: false
-          title: Grouped
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Event Id
+        - name: grouped
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+            title: Grouped
       responses:
         '200':
           description: Successful Response
@@ -325,15 +318,15 @@ paths:
             application/json:
               schema:
                 anyOf:
-                - type: array
-                  items:
-                    $ref: '#/components/schemas/Drink'
-                - type: object
-                  additionalProperties:
-                    type: array
+                  - type: array
                     items:
                       $ref: '#/components/schemas/Drink'
-                title: Response Get Drinks For Event Events  Event Id  Drinks Get
+                  - type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Drink'
+                title: Response List Event Drinks
         '422':
           description: Validation Error
           content:
@@ -343,17 +336,18 @@ paths:
   /events/upcoming:
     get:
       tags:
-      - events
+        - events
+        - mvg
       summary: Events
-      operationId: events_events_upcoming_get
+      operationId: get_upcoming_events
       parameters:
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 10
-          title: Limit
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            title: Limit
       responses:
         '200':
           description: Successful Response
@@ -363,7 +357,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Event'
-                title: Response Events Events Upcoming Get
+                title: Response Get Upcoming Events
         '422':
           description: Validation Error
           content:
@@ -373,9 +367,10 @@ paths:
   /members:
     get:
       tags:
-      - members
+        - members
+        - mvg
       summary: Members
-      operationId: members_members_get
+      operationId: list_members
       responses:
         '200':
           description: Successful Response
@@ -385,30 +380,31 @@ paths:
                 items:
                   $ref: '#/components/schemas/Member'
                 type: array
-                title: Response Members Members Get
+                title: Response List Members
   /members/{member_id}/drinks:
     get:
       tags:
-      - members
-      - drinks
+        - members
+        - mvg
+        - drinks
       summary: Get Drinks For Event
-      operationId: get_drinks_for_event_members__member_id__drinks_get
+      operationId: get_member_drinks
       parameters:
-      - name: member_id
-        in: path
-        required: true
-        schema:
-          type: integer
-          title: Member Id
-      - name: grouped
-        in: query
-        required: false
-        schema:
-          type: boolean
+        - name: member_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Member Id
+        - name: grouped
+          in: query
+          required: false
+          schema:
+            type: boolean
+            description: Group drinks consumed by event_id
+            default: false
+            title: Grouped
           description: Group drinks consumed by event_id
-          default: false
-          title: Grouped
-        description: Group drinks consumed by event_id
       responses:
         '200':
           description: Successful Response
@@ -416,15 +412,15 @@ paths:
             application/json:
               schema:
                 anyOf:
-                - type: array
-                  items:
-                    $ref: '#/components/schemas/Drink'
-                - type: object
-                  additionalProperties:
-                    type: array
+                  - type: array
                     items:
                       $ref: '#/components/schemas/Drink'
-                title: Response Get Drinks For Event Members  Member Id  Drinks Get
+                  - type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Drink'
+                title: Response Get Member Drinks
         '422':
           description: Validation Error
           content:
@@ -434,24 +430,25 @@ paths:
   /quotes:
     get:
       tags:
-      - quotes
+        - quotes
+        - mvg
       summary: Get Quotes
-      operationId: get_quotes_quotes_get
+      operationId: list_quotes
       parameters:
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 10
-          title: Limit
-      - name: skip
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 0
-          title: Skip
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            title: Limit
+        - name: skip
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            title: Skip
       responses:
         '200':
           description: Successful Response
@@ -466,20 +463,12 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     post:
       tags:
-      - quotes
+        - quotes
+        - mvg
       summary: Create Quote
-      operationId: create_quote_quotes_post
-      parameters:
-      - name: args
-        in: query
-        required: true
-        schema:
-          title: Args
-      - name: kwargs
-        in: query
-        required: true
-        schema:
-          title: Kwargs
+      operationId: create_quote
+      security:
+        - OAuth2PasswordBearer: []
       requestBody:
         required: true
         content:
@@ -502,9 +491,10 @@ paths:
   /quotes/random_quote:
     get:
       tags:
-      - quotes
+        - quotes
+        - mvg
       summary: Quote Of The Day
-      operationId: quote_of_the_day_quotes_random_quote_get
+      operationId: get_random_quote
       responses:
         '200':
           description: Successful Response
@@ -515,24 +505,25 @@ paths:
   /chugs:
     get:
       tags:
-      - chugging
+        - chugging
+        - mvg
       summary: Events
-      operationId: events_chugs_get
+      operationId: list_chugs
       parameters:
-      - name: skip
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 0
-          title: Skip
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 100
-          title: Limit
+        - name: skip
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            title: Skip
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 100
+            title: Limit
       responses:
         '200':
           description: Successful Response
@@ -542,7 +533,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/BaseChug'
-                title: Response Events Chugs Get
+                title: Response List Chugs
         '422':
           description: Validation Error
           content:
@@ -551,9 +542,10 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
     post:
       tags:
-      - chugging
+        - chugging
+        - mvg
       summary: Create Event
-      operationId: create_event_chugs_post
+      operationId: create_chugs
       requestBody:
         required: true
         content:
@@ -575,17 +567,18 @@ paths:
   /chugs/top-player:
     get:
       tags:
-      - chugging
+        - chugging
+        - mvg
       summary: Top Player
-      operationId: top_player_chugs_top_player_get
+      operationId: get_top_chuggers
       parameters:
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 10
-          title: Limit
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            title: Limit
       responses:
         '200':
           description: Successful Response
@@ -595,7 +588,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/BaseChug'
-                title: Response Top Player Chugs Top Player Get
+                title: Response Get Top Chuggers
         '422':
           description: Validation Error
           content:
@@ -605,9 +598,10 @@ paths:
   /card:
     get:
       tags:
-      - card
+        - card
+        - mvg
       summary: Get Cards
-      operationId: get_cards_card_get
+      operationId: get_all_cards
       responses:
         '200':
           description: Successful Response
@@ -616,9 +610,10 @@ paths:
               schema: {}
     post:
       tags:
-      - card
+        - card
+        - mvg
       summary: Create Card
-      operationId: create_card_card_post
+      operationId: create_new_card
       requestBody:
         content:
           application/json:
@@ -640,16 +635,17 @@ paths:
   /card/{member_id}:
     delete:
       tags:
-      - card
+        - card
+        - mvg
       summary: Delete Card
-      operationId: delete_card_card__member_id__delete
+      operationId: delete_card_by_member_id
       parameters:
-      - name: member_id
-        in: path
-        required: true
-        schema:
-          type: integer
-          title: Member Id
+        - name: member_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Member Id
       responses:
         '200':
           description: Successful Response
@@ -662,6 +658,194 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /recipes:
+    post:
+      tags:
+        - recipes
+        - mvg
+      summary: Create Recipe
+      operationId: create_recipe
+      security:
+        - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - recipes
+        - mvg
+      summary: Get All Recipes
+      operationId: get_all_recipes
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+                title: Response Get All Recipes
+    delete:
+      tags:
+        - recipes
+        - mvg
+      summary: Delete Recipe
+      operationId: delete_recipe
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: recipe_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            title: Recipe Id
+        - name: recipe_name
+          in: query
+          required: false
+          schema:
+            type: string
+            title: Recipe Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /recipes/{recipe_id}:
+    get:
+      tags:
+        - recipes
+        - mvg
+      summary: Get Recipe
+      operationId: get_recipe_by_id
+      parameters:
+        - name: recipe_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Recipe Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /upcoming_events:
+    get:
+      tags:
+        - events
+        - mvg
+      summary: Get Next Event
+      operationId: get_next_upcoming_event
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+            title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+                title: Response Get Next Upcoming Event
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/hash:
+    post:
+      tags:
+        - auth
+        - mvg
+      summary: Set Password
+      operationId: hash_password
+      parameters:
+        - name: pw
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Pw
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /drinks:
+    post:
+      tags:
+        - drinks
+        - mvg
+      summary: Post Drink
+      operationId: create_drink
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DrinkCreate'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Drink'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - OAuth2PasswordBearer: []
 components:
   schemas:
     BaseChug:
@@ -673,9 +857,16 @@ components:
           title: Time
       type: object
       required:
-      - member
-      - time
+        - member
+        - time
       title: BaseChug
+    ComplexityLevel:
+      type: string
+      enum:
+        - 5-15
+        - 15-35
+        - 40+
+      title: ComplexityLevel
     CreateCard:
       properties:
         member_id:
@@ -686,8 +877,8 @@ components:
           title: Card Uid
       type: object
       required:
-      - member_id
-      - card_uid
+        - member_id
+        - card_uid
       title: CreateCard
     Drink:
       properties:
@@ -710,13 +901,43 @@ components:
           $ref: '#/components/schemas/Event'
       type: object
       required:
-      - drink
-      - ml_alc
-      - id
-      - time
-      - consumer
-      - event
+        - drink
+        - ml_alc
+        - id
+        - time
+        - consumer
+        - event
       title: Drink
+    DrinkCreate:
+      properties:
+        drink:
+          type: string
+          title: Drink
+        ml_alc:
+          type: integer
+          title: Ml Alc
+        time:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: Time
+        consumer_id:
+          type: integer
+          title: Consumer Id
+        event_id:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Event Id
+      type: object
+      required:
+        - drink
+        - ml_alc
+        - time
+        - consumer_id
+        - event_id
+      title: DrinkCreate
     Event:
       properties:
         name:
@@ -728,13 +949,13 @@ components:
           title: Start Time
         location:
           anyOf:
-          - type: string
-          - type: 'null'
+            - type: string
+            - type: 'null'
           title: Location
         duration:
           anyOf:
-          - type: integer
-          - type: 'null'
+            - type: integer
+            - type: 'null'
           title: Duration
           description: Duration in Minutes. Null means open end.
         id:
@@ -747,16 +968,16 @@ components:
           title: Participants
         author:
           anyOf:
-          - $ref: '#/components/schemas/Member'
-          - type: 'null'
+            - $ref: '#/components/schemas/Member'
+            - type: 'null'
       type: object
       required:
-      - name
-      - start_time
-      - location
-      - id
-      - participants
-      - author
+        - name
+        - start_time
+        - location
+        - id
+        - participants
+        - author
       title: Event
     EventCreate:
       properties:
@@ -769,26 +990,26 @@ components:
           title: Start Time
         location:
           anyOf:
-          - type: string
-          - type: 'null'
+            - type: string
+            - type: 'null'
           title: Location
         duration:
           anyOf:
-          - type: integer
-          - type: 'null'
+            - type: integer
+            - type: 'null'
           title: Duration
           description: Duration in Minutes. Null means open end.
         author_id:
           anyOf:
-          - type: integer
-          - type: 'null'
+            - type: integer
+            - type: 'null'
           title: Author Id
       type: object
       required:
-      - name
-      - start_time
-      - location
-      - author_id
+        - name
+        - start_time
+        - location
+        - author_id
       title: EventCreate
     HTTPValidationError:
       properties:
@@ -809,8 +1030,8 @@ components:
           title: Id
       type: object
       required:
-      - name
-      - id
+        - name
+        - id
       title: Member
     Quote:
       properties:
@@ -819,14 +1040,14 @@ components:
           title: Quote
         date:
           anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
+            - type: string
+              format: date-time
+            - type: 'null'
           title: Date
         location:
           anyOf:
-          - type: string
-          - type: 'null'
+            - type: string
+            - type: 'null'
           title: Location
         id:
           type: integer
@@ -835,11 +1056,11 @@ components:
           $ref: '#/components/schemas/Member'
       type: object
       required:
-      - quote
-      - date
-      - location
-      - id
-      - author
+        - quote
+        - date
+        - location
+        - id
+        - author
       title: Quote
     QuoteCreate:
       properties:
@@ -848,25 +1069,93 @@ components:
           title: Quote
         date:
           anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
+            - type: string
+              format: date-time
+            - type: 'null'
           title: Date
         location:
           anyOf:
-          - type: string
-          - type: 'null'
+            - type: string
+            - type: 'null'
           title: Location
         author_id:
           type: integer
           title: Author Id
       type: object
       required:
-      - quote
-      - date
-      - location
-      - author_id
+        - quote
+        - date
+        - location
+        - author_id
       title: QuoteCreate
+    Recipe:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Description
+          description: A brief description of the recipe.
+        time_of_day:
+          $ref: '#/components/schemas/TimeOfDay'
+        complexity:
+          anyOf:
+            - $ref: '#/components/schemas/ComplexityLevel'
+            - type: 'null'
+        id:
+          type: integer
+          title: Id
+        author:
+          anyOf:
+            - $ref: '#/components/schemas/Member'
+            - type: 'null'
+      type: object
+      required:
+        - name
+        - time_of_day
+        - complexity
+        - id
+        - author
+      title: Recipe
+    RecipeCreate:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Description
+          description: A brief description of the recipe.
+        time_of_day:
+          $ref: '#/components/schemas/TimeOfDay'
+        complexity:
+          anyOf:
+            - $ref: '#/components/schemas/ComplexityLevel'
+            - type: 'null'
+        author_id:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Author Id
+      type: object
+      required:
+        - name
+        - time_of_day
+        - complexity
+        - author_id
+      title: RecipeCreate
+    TimeOfDay:
+      type: string
+      enum:
+        - breakfast
+        - lunch
+        - dinner
+      title: TimeOfDay
     TokenRefreshRequest:
       properties:
         refresh_token:
@@ -874,7 +1163,7 @@ components:
           title: Refresh Token
       type: object
       required:
-      - refresh_token
+        - refresh_token
       title: TokenRefreshRequest
     UploadChug:
       properties:
@@ -890,16 +1179,16 @@ components:
           title: Time
       type: object
       required:
-      - id
-      - time
+        - id
+        - time
       title: UploadChug
     ValidationError:
       properties:
         loc:
           items:
             anyOf:
-            - type: string
-            - type: integer
+              - type: string
+              - type: integer
           type: array
           title: Location
         msg:
@@ -910,7 +1199,14 @@ components:
           title: Error Type
       type: object
       required:
-      - loc
-      - msg
-      - type
+        - loc
+        - msg
+        - type
       title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: https://auth.toskana-fraktion.social/auth/realms/toskana-fraktion/protocol/openid-connect/token

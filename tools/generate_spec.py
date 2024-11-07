@@ -22,24 +22,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
 sys.path.append(project_root)
 
-def create_test_app():
-    app = FastAPI()
-    
-    # Now we can safely import routes
-    from src.routes import auth, events, member, quotes, chug, card
-    
-    # Add all routers
-    app.include_router(auth.router)
-    app.include_router(events.router)
-    app.include_router(member.router)
-    app.include_router(quotes.router)
-    app.include_router(chug.router)
-    app.include_router(card.router)
-    
-    return app
-
 def generate_openapi_yaml():
-    app = create_test_app()
+    from src.main import app
     
     openapi_schema = app.openapi()
     

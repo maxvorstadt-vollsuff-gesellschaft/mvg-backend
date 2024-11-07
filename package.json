@@ -1,0 +1,11 @@
+{
+    "name": "edited-rs-backend",
+    "scripts": {
+      "build": "docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/linuseing/edited-rs-backend:latest . --push",
+      "dev": "source .env && docker compose up -d && poetry run uvicorn src.main:app --reload --host 0.0.0.0",
+      "generate-client": "rm -rf ts-client && rm -f openapi.yaml openapi.json && poetry run python tools/generate_spec.py && openapi-generator-cli generate -i openapi.yaml -g typescript-axios -o ts-client -c openapi-config.json"
+    },
+    "devDependencies": {
+      "@openapitools/openapi-generator-cli": "^2.7.0"
+    }
+}

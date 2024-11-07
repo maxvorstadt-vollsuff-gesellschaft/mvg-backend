@@ -1,0 +1,6 @@
+{
+    "supportsES6": true,
+    "apiPackage": "apis",
+    "modelPackage": "models",
+    "groupByTags": false
+}

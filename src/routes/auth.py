@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends, Request, HTTPException
 from passlib.context import CryptContext
 from fastapi.responses import RedirectResponse
@@ -10,6 +11,9 @@ from ..models import Member
 from ..database import get_db
 from ..auth_utils import idp
 from ..repositories import member_repository
+from .. import schemas
+from .. import models
+from ..auth_utils import get_current_user
 router = APIRouter(
     prefix="/auth",
     tags=["auth", "mvg"]
@@ -68,3 +72,9 @@ def refresh_token(
 @router.post("/logout", operation_id="logout_user")
 def logout():
     idp.logout_uri
+
+@router.get("/me", operation_id="read_current_user")
+async def read_users_me(
+    current_user: Annotated[models.Member, Depends(get_current_user)]
+) -> schemas.Member:
+    return schemas.Member.model_validate(current_user)

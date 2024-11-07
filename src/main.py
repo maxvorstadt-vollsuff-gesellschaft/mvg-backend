@@ -68,13 +68,13 @@ async def shutdown() -> None:
     await database.database.disconnect()
 
 
-@app.get("/events/upcoming")
+@app.get("/events/upcoming", operation_id="get_upcoming_events", tags=["events", "mvg"])
 def events(limit: int = 10, db=Depends(get_db)) -> list[schemas.Event]:
     db_events = repositories.event_repository.get_upcoming_events(db, limit=limit)
     return [schemas.Event.model_validate(event) for event in db_events]
 
 
-@app.get("/upcoming_events")
+@app.get("/upcoming_events", operation_id="get_next_upcoming_event", tags=["events", "mvg"])
 def get_next_event(limit: int = 1, db=Depends(get_db)) -> list[schemas.Event]:
     db_events = repositories.event_repository.get_next_upcoming_event(db, limit=limit)
     if len(db_events) == 0:
@@ -82,19 +82,12 @@ def get_next_event(limit: int = 1, db=Depends(get_db)) -> list[schemas.Event]:
     return [schemas.Event.model_validate(event) for event in db_events]
 
 
-@app.get("/users/me/", response_model=schemas.Member)
-async def read_users_me(
-        current_user: Annotated[models.Member, Depends(get_current_user)],
-) -> schemas.Member:
-    return schemas.Member.model_validate(current_user)
-
-
-@app.post("/auth/hash")
+@app.post("/auth/hash", operation_id="hash_password", tags=["auth", "mvg"])
 def set_password(pw: str):
     return pwd_context.hash(pw)
 
 
-@app.post("/drinks")
+@app.post("/drinks", operation_id="create_drink", tags=["drinks", "mvg"])
 async def post_drink(
         drink: schemas.DrinkCreate,
         current_user: Annotated[models.Member, Depends(get_current_user)],
