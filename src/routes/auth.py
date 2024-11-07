@@ -12,18 +12,18 @@ from ..auth_utils import idp
 from ..repositories import member_repository
 router = APIRouter(
     prefix="/auth",
-    tags=["auth"]
+    tags=["auth", "mvg"]
 )
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-@router.get("/login")
+@router.get("/login", operation_id="redirect_to_login")
 def login_redirect():
     return RedirectResponse(idp.login_uri)
 
 
-@router.get("/callback")
+@router.get("/callback", operation_id="process_oauth_callback")
 def callback(session_state: str, code: str, db=Depends(get_db)):
     token = idp.exchange_authorization_code(session_state=session_state, code=code)
     user_info = jwt.decode(token.access_token, options={"verify_signature": False})
@@ -39,7 +39,7 @@ def callback(session_state: str, code: str, db=Depends(get_db)):
 class TokenRefreshRequest(BaseModel):
     refresh_token: str
 
-@router.post("/refresh")
+@router.post("/refresh", operation_id="refresh_access_token")
 def refresh_token(
     token_data: TokenRefreshRequest,
 ):
@@ -65,6 +65,6 @@ def refresh_token(
     })
 
 
-@router.post("/logout")
+@router.post("/logout", operation_id="logout_user")
 def logout():
     idp.logout_uri

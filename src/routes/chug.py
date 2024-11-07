@@ -6,17 +6,17 @@ from ..database import get_db
 
 router = APIRouter(
     prefix="/chugs",
-    tags=["chugging"]
+    tags=["chugging", "mvg"]
 )
 
 
-@router.get("")
+@router.get("", operation_id="list_chugs")
 def events(skip: int = 0, limit: int = 100, db=Depends(get_db)) -> list[schemas.BaseChug]:
     db_chugs = repositories.chug_repository.get_multi(db, skip, limit)
     return [schemas.BaseChug.model_validate(chug) for chug in db_chugs]
 
 
-@router.post("")
+@router.post("", operation_id="create_chugs")
 def create_event(
         chugs: schemas.UploadChug,
         db=Depends(get_db)
@@ -28,7 +28,7 @@ def create_event(
         repositories.chug_repository.create(db, {"member_id": card.member_id, "time": chugs.time[i]})
 
 
-@router.get("/top-player")
+@router.get("/top-player", operation_id="get_top_chuggers")
 def top_player(limit: int = 10, db=Depends(get_db)) -> list[schemas.BaseChug]:
     db_chugs = repositories.chug_repository.get_ordered_unique(db, limit)
     return [schemas.BaseChug.model_validate(chug) for chug in db_chugs]

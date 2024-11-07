@@ -8,17 +8,17 @@ from ..database import get_db
 
 router = APIRouter(
     prefix="/members",
-    tags=["members"]
+    tags=["members", "mvg"]
 )
 
 
-@router.get("")
+@router.get("", operation_id="list_members")
 def members(db=Depends(get_db)) -> list[schemas.Member]:
     db_members = repositories.member_repository.get_multi(db)
     return [schemas.Member.model_validate(member) for member in db_members]
 
 
-@router.get("/{member_id}/drinks", tags=["drinks"])
+@router.get("/{member_id}/drinks", tags=["drinks"], operation_id="get_member_drinks")
 def get_drinks_for_event(
         member_id: int,
         grouped: bool = Query(False, description="Group drinks consumed by event_id"),

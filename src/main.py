@@ -22,6 +22,7 @@ models.Base.metadata.create_all(bind=engine)
 origins = [
     "https://mvg.life",
     "http://localhost:3000",
+    "http://localhost:3001",
     "https://nfconnect.pages.dev",
     "https://register.mvg.life"
 ]

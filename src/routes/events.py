@@ -11,17 +11,17 @@ from ..database import get_db
 
 router = APIRouter(
     prefix="/events",
-    tags=["events"]
+    tags=["events", "mvg"]
 )
 
 
-@router.get("")
+@router.get("", operation_id="list_events")
 def events(skip: int = 0, limit: int = 100, db=Depends(get_db)) -> list[schemas.Event]:
     db_events = repositories.event_repository.get_multi(db, skip=skip, limit=limit)
     return [schemas.Event.model_validate(event) for event in db_events]
 
 
-@router.post("")
+@router.post("", operation_id="create_event")
 def create_event(
         event: schemas.EventCreate,
         _current_user: Annotated[models.Member, Depends(get_current_user)],
@@ -31,7 +31,7 @@ def create_event(
     return schemas.Event.model_validate(db_event)
 
 
-@router.get("/event/{id}")
+@router.get("/event/{id}", operation_id="get_event_by_id")
 def get_event(id: int, db=Depends(get_db)) -> schemas.Event:
     db_event = repositories.event_repository.get(db, id)
     if not db_event:
@@ -39,7 +39,7 @@ def get_event(id: int, db=Depends(get_db)) -> schemas.Event:
     return schemas.Event.model_validate(db_event)
 
 
-@router.delete("/event/{id}")
+@router.delete("/event/{id}", operation_id="delete_event_by_id")
 def delete_event(
         id: int,
         _current_user: Annotated[models.Member, Depends(get_current_user)],
@@ -52,7 +52,7 @@ def delete_event(
     return schemas.Event.model_validate(db_event)
 
 
-@router.post("/{event_id}/participate")
+@router.post("/{event_id}/participate", operation_id="add_event_participant")
 def participate(
         event_id: int,
         member: int,
@@ -68,7 +68,7 @@ def participate(
         raise HTTPException(status_code=400, detail=str(err))
 
 
-@router.delete("/{event_id}/participate")
+@router.delete("/{event_id}/participate", operation_id="remove_event_participant")
 def remove_participant(
         event_id: int,
         member: int,
@@ -84,7 +84,7 @@ def remove_participant(
         raise HTTPException(status_code=400, detail=str(err))
 
 
-@router.get("/{event_id}/drinks", tags=["drinks"])
+@router.get("/{event_id}/drinks", operation_id="list_event_drinks")
 def get_drinks_for_event(
         event_id: int,
         grouped: bool = False,
@@ -99,7 +99,7 @@ def get_drinks_for_event(
     return [schemas.Drink.model_validate(db_drink) for db_drink in db_drinks]
 
 
-@router.get("/upcoming")
+@router.get("/upcoming", operation_id="list_upcoming_events")
 def events(limit: int = 10, db=Depends(get_db)) -> list[schemas.Event]:
     db_events = repositories.event_repository.get_upcoming_events(db, limit=limit)
     return [schemas.Event.from_orm(event) for event in db_events]
