@@ -860,13 +860,6 @@ components:
         - member
         - time
       title: BaseChug
-    ComplexityLevel:
-      type: string
-      enum:
-        - 5-15
-        - 15-35
-        - 40+
-      title: ComplexityLevel
     CreateCard:
       properties:
         member_id:
@@ -1099,12 +1092,13 @@ components:
             - type: 'null'
           title: Description
           description: A brief description of the recipe.
-        time_of_day:
-          $ref: '#/components/schemas/TimeOfDay'
-        complexity:
+        time:
           anyOf:
-            - $ref: '#/components/schemas/ComplexityLevel'
+            - type: integer
             - type: 'null'
+          title: Time
+        situation:
+          $ref: '#/components/schemas/Situation'
         id:
           type: integer
           title: Id
@@ -1115,8 +1109,8 @@ components:
       type: object
       required:
         - name
-        - time_of_day
-        - complexity
+        - time
+        - situation
         - id
         - author
       title: Recipe
@@ -1131,12 +1125,13 @@ components:
             - type: 'null'
           title: Description
           description: A brief description of the recipe.
-        time_of_day:
-          $ref: '#/components/schemas/TimeOfDay'
-        complexity:
+        time:
           anyOf:
-            - $ref: '#/components/schemas/ComplexityLevel'
+            - type: integer
             - type: 'null'
+          title: Time
+        situation:
+          $ref: '#/components/schemas/Situation'
         author_id:
           anyOf:
             - type: integer
@@ -1145,17 +1140,17 @@ components:
       type: object
       required:
         - name
-        - time_of_day
-        - complexity
+        - time
+        - situation
         - author_id
       title: RecipeCreate
-    TimeOfDay:
+    Situation:
       type: string
       enum:
         - breakfast
         - lunch
         - dinner
-      title: TimeOfDay
+      title: Situation
     TokenRefreshRequest:
       properties:
         refresh_token:

@@ -22,10 +22,7 @@ def create_recipe(
     try:
         db_recipe = repositories.recipe_repository.save_recipe(
             db,
-            recipe_name=recipe.name,
-            time_of_day=recipe.time_of_day,
-            complexity=recipe.complexity,
-            description=recipe.description
+            recipe
         )
         return schemas.Recipe.from_orm(db_recipe)
     except ValueError as err:
@@ -40,7 +37,7 @@ def get_recipe(recipe_id: int, db: Session = Depends(get_db)) -> schemas.Recipe:
 
 @router.get("", operation_id="get_all_recipes")
 def get_all_recipes(db: Session = Depends(get_db)) -> list[schemas.Recipe]:
-    db_recipes = repositories.recipe_repository.get_all(db)
+    db_recipes = repositories.recipe_repository.get_multi(db)
     return [schemas.Recipe.from_orm(recipe) for recipe in db_recipes]
 
 @router.delete("", operation_id="delete_recipe")

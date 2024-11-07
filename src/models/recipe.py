@@ -6,23 +6,18 @@ from enum import Enum as PyEnum
 from .base import Base
 from .member import Member  
 
-class TimeOfDay(PyEnum):
+class Situation(PyEnum):
     BREAKFAST = "breakfast"
     LUNCH = "lunch"
     DINNER = "dinner"
-
-class ComplexityLevel(PyEnum):
-    EASY = "5-15"
-    MEDIUM = "15-35"
-    HARD = "40+"
 
 class Recipe(Base):
     __tablename__ = 'recipes'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
-    time_of_day: Mapped[TimeOfDay] = mapped_column(Enum(TimeOfDay), nullable=False)
-    complexity: Mapped[Optional[ComplexityLevel]] = mapped_column(Enum(ComplexityLevel), nullable=True)
+    situation: Mapped[Situation] = mapped_column(Enum(Situation), nullable=False)
+    time: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     author_id: Mapped[int] = mapped_column(Integer, ForeignKey('members.id'), nullable=False)
     author: Mapped[Member] = relationship("Member", back_populates="recipes")

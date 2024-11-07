@@ -3,13 +3,13 @@ from typing import Optional, List
 
 from pydantic import BaseModel, Field
 from .member import Member  
-from ..models.recipe import TimeOfDay, ComplexityLevel
+from ..models.recipe import Situation
 
 class RecipeBase(BaseModel):
     name: str
     description: Optional[str] = Field(None, description="A brief description of the recipe.")
-    time_of_day: TimeOfDay
-    complexity: Optional[ComplexityLevel]
+    time: Optional[int]
+    situation: Situation
 
 class RecipeCreate(RecipeBase):
     author_id: Optional[int]
