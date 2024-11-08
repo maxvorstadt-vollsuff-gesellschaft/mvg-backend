@@ -44,10 +44,11 @@ class EventService:
         return event
 
     def create_event(
-        self, 
-        event: EventCreate, 
+        self,
+        event: EventCreate,
         user: OIDCUser
     ) -> Event:
+        print(user.roles)
         if not any(check_user_access(role, Roles.MVG_MEMBER.value) for role in user.roles):
             raise HTTPException(
                 status_code=403, 
@@ -93,6 +94,15 @@ class EventService:
     ) -> List[Event]:
         events = self.event_repository.get_multi(skip=skip, limit=limit)
         return [e for e in events if self.check_event_access(e, user, 'view')]
+
+    def delete_event(self, id: int, user: OIDCUser) -> Event:
+        event = self.event_repository.get(id)
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        if not self.check_event_access(event, user, 'edit'):
+            raise HTTPException(status_code=403, detail="Not enough permissions")
+        return self.event_repository.remove(id)
+
 
 def get_event_service(
     event_repo: Annotated[CRUDEvent, Depends(get_event_repository)]
