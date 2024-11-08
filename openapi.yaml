@@ -240,12 +240,6 @@ paths:
           schema:
             type: integer
             title: Event Id
-        - name: member
-          in: query
-          required: true
-          schema:
-            type: integer
-            title: Member
       responses:
         '200':
           description: Successful Response
@@ -274,12 +268,6 @@ paths:
           schema:
             type: integer
             title: Event Id
-        - name: member
-          in: query
-          required: true
-          schema:
-            type: integer
-            title: Member
       responses:
         '200':
           description: Successful Response
@@ -299,7 +287,9 @@ paths:
         - events
         - mvg
       summary: Events
-      operationId: get_upcoming_events
+      operationId: list_upcoming_events
+      security:
+        - OAuth2PasswordBearer: []
       parameters:
         - name: limit
           in: query
@@ -317,7 +307,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Event'
-                title: Response Get Upcoming Events
+                title: Response List Upcoming Events
         '422':
           description: Validation Error
           content:
@@ -781,37 +771,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Recipe'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /upcoming_events:
-    get:
-      tags:
-        - events
-        - mvg
-      summary: Get Next Event
-      operationId: get_next_upcoming_event
-      parameters:
-        - name: limit
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 1
-            title: Limit
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Event'
-                title: Response Get Next Upcoming Event
         '422':
           description: Validation Error
           content:

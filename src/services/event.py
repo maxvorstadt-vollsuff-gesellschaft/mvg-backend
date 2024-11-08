@@ -82,9 +82,12 @@ class EventService:
 
     def get_upcoming_events(
         self,
+        user: OIDCUser,
         limit: int = 10
     ) -> List[Event]:
-        return self.event_repository.get_upcoming_events(limit=limit)
+        events = self.event_repository.get_upcoming_events(limit=100) # hack but works for now
+        print(events[0].view_role)
+        return [e for e in events if self.check_event_access(e, user, 'view')][:limit]
 
     def get_accessible_events(
         self,

@@ -8,6 +8,8 @@ from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_keycloak import OIDCUser
 
+from .services.event import EventService, get_event_service
+
 from . import routes
 from .auth_utils import get_current_user
 from . import models
@@ -67,20 +69,6 @@ def schedule():
 @app.on_event("shutdown")
 async def shutdown() -> None:
     await database.database.disconnect()
-
-
-@app.get("/events/upcoming", operation_id="get_upcoming_events", tags=["events", "mvg"])
-def events(limit: int = 10, db=Depends(get_db)) -> list[schemas.Event]:
-    db_events = repositories.event_repository.get_upcoming_events(db, limit=limit)
-    return [schemas.Event.model_validate(event) for event in db_events]
-
-
-@app.get("/upcoming_events", operation_id="get_next_upcoming_event", tags=["events", "mvg"])
-def get_next_event(limit: int = 1, db=Depends(get_db)) -> list[schemas.Event]:
-    db_events = repositories.event_repository.get_next_upcoming_event(db, limit=limit)
-    if len(db_events) == 0:
-        raise HTTPException(status_code=400, detail="No upcoming events found")
-    return [schemas.Event.model_validate(event) for event in db_events]
 
 
 @app.post("/auth/hash", operation_id="hash_password", tags=["auth", "mvg"])

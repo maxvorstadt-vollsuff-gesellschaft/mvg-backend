@@ -78,9 +78,12 @@ def remove_participant(
 @router.get("/upcoming", operation_id="list_upcoming_events")
 def events(
     event_service: Annotated[EventService, Depends(get_event_service)],
+    user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
     limit: int = 10,
 ) -> list[schemas.Event]:
-    db_events = event_service.get_upcoming_events(limit=limit)
+    oidc_user, _ = user_info
+    print(oidc_user.roles)
+    db_events = event_service.get_upcoming_events(oidc_user, limit=limit)
     return [schemas.Event.from_orm(event) for event in db_events]
 
 @router.get("/calendar", operation_id="get_calendar_events", response_class=Response)
