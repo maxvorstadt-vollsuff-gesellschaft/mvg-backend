@@ -1,7 +1,9 @@
 from collections import defaultdict
+from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
+from icalendar import Calendar, Event
 
 from .. import models
 from .. import repositories
@@ -105,3 +107,37 @@ def events(limit: int = 10, db=Depends(get_db)) -> list[schemas.Event]:
     return [schemas.Event.from_orm(event) for event in db_events]
 
 
+@router.get("/calendar", operation_id="get_calendar_events", response_class=Response)
+def get_calendar_events(db=Depends(get_db)) -> Response:
+    db_events = repositories.event_repository.get_multi(db, skip=0, limit=100)
+    
+    cal = Calendar()
+    cal.add('prodid', '-//MVG Calendar//mvg.life//')
+    cal.add('version', '2.0')
+    cal.add('method', 'PUBLISH')
+
+    for event in db_events:
+        event_component = Event()
+        event_component.add('summary', event.name)
+        event_component.add('dtstart', event.start_time)
+        event_component.add('dtend', event.start_time + timedelta(hours=2))
+        event_component.add('location', event.location)
+        event_component.add('description', f"created by {event.author.name}")
+        
+        for participant in event.participants:
+            event_component.add('attendee', f'mailto:{participant.name}',
+                              parameters={
+                                  'PARTSTAT': 'ACCEPTED',
+                                  'CN': participant.name,
+                                  'ROLE': 'REQ-PARTICIPANT'
+                              })
+            
+        cal.add_component(event_component)
+    
+    return Response(
+        content=cal.to_ical(),
+        media_type="text/calendar",
+        headers={
+            "Content-Disposition": "attachment; filename=calendar.ics"
+        }
+    )
