@@ -16,7 +16,7 @@ class Quote(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     quote: Mapped[str] = mapped_column(String)
-    author_id: Mapped[int] = mapped_column(Integer, ForeignKey("members.id"), nullable=False)
+    author_id: Mapped[str] = mapped_column(String, ForeignKey("members.user_sub"), nullable=False)
     author: Mapped["Member"] = relationship("Member", back_populates="quotes")
     rotations: Mapped[list["QuoteRotation"]] = relationship("QuoteRotation", back_populates="quote", lazy='select')
     date: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=datetime.utcnow)

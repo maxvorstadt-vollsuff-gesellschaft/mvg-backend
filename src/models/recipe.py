@@ -19,5 +19,5 @@ class Recipe(Base):
     situation: Mapped[Situation] = mapped_column(Enum(Situation), nullable=False)
     time: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    author_id: Mapped[int] = mapped_column(Integer, ForeignKey('members.id'), nullable=False)
+    author_id: Mapped[str] = mapped_column(String, ForeignKey('members.user_sub'), nullable=False)
     author: Mapped[Member] = relationship("Member", back_populates="recipes")

@@ -109,6 +109,8 @@ paths:
         - mvg
       summary: Events
       operationId: list_events
+      security:
+        - OAuth2PasswordBearer: []
       parameters:
         - name: skip
           in: query
@@ -159,7 +161,8 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/Event'
         '422':
           description: Validation Error
           content:
@@ -290,6 +293,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /events/upcoming:
+    get:
+      tags:
+        - events
+        - mvg
+      summary: Events
+      operationId: get_upcoming_events
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+                title: Response Get Upcoming Events
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /events/calendar:
+    get:
+      tags:
+        - events
+        - mvg
+      summary: Get Calendar Events
+      operationId: get_calendar_events
+      responses:
+        '200':
+          description: Successful Response
   /events/{event_id}/drinks:
     get:
       tags:
@@ -327,37 +371,6 @@ paths:
                       items:
                         $ref: '#/components/schemas/Drink'
                 title: Response List Event Drinks
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /events/upcoming:
-    get:
-      tags:
-        - events
-        - mvg
-      summary: Events
-      operationId: get_upcoming_events
-      parameters:
-        - name: limit
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 10
-            title: Limit
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Event'
-                title: Response Get Upcoming Events
         '422':
           description: Validation Error
           content:
@@ -435,13 +448,6 @@ paths:
       summary: Get Quotes
       operationId: list_quotes
       parameters:
-        - name: limit
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 10
-            title: Limit
         - name: skip
           in: query
           required: false
@@ -449,12 +455,23 @@ paths:
             type: integer
             default: 0
             title: Skip
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            title: Limit
       responses:
         '200':
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Quote'
+                title: Response List Quotes
         '422':
           description: Validation Error
           content:
@@ -607,7 +624,11 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                items:
+                  $ref: '#/components/schemas/Card'
+                type: array
+                title: Response Get All Cards
     post:
       tags:
         - card
@@ -625,7 +646,8 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/Card'
         '422':
           description: Validation Error
           content:
@@ -651,7 +673,8 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/Card'
         '422':
           description: Validation Error
           content:
@@ -678,7 +701,8 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/Recipe'
         '422':
           description: Validation Error
           content:
@@ -727,7 +751,9 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                type: object
+                title: Response Delete Recipe
         '422':
           description: Validation Error
           content:
@@ -860,6 +886,19 @@ components:
         - member
         - time
       title: BaseChug
+    Card:
+      properties:
+        member_id:
+          type: integer
+          title: Member Id
+        card_uid:
+          type: string
+          title: Card Uid
+      type: object
+      required:
+        - member_id
+        - card_uid
+      title: Card
     CreateCard:
       properties:
         member_id:
@@ -951,6 +990,21 @@ components:
             - type: 'null'
           title: Duration
           description: Duration in Minutes. Null means open end.
+        view_role:
+          allOf:
+            - $ref: '#/components/schemas/Roles'
+          description: Minimum role required to view this event
+          default: guest
+        participate_role:
+          allOf:
+            - $ref: '#/components/schemas/Roles'
+          description: Minimum role required to participate in this event
+          default: mvg-member
+        edit_role:
+          allOf:
+            - $ref: '#/components/schemas/Roles'
+          description: Minimum role required to edit this event
+          default: mvg-member
         id:
           type: integer
           title: Id
@@ -992,17 +1046,26 @@ components:
             - type: 'null'
           title: Duration
           description: Duration in Minutes. Null means open end.
-        author_id:
-          anyOf:
-            - type: integer
-            - type: 'null'
-          title: Author Id
+        view_role:
+          allOf:
+            - $ref: '#/components/schemas/Roles'
+          description: Minimum role required to view this event
+          default: guest
+        participate_role:
+          allOf:
+            - $ref: '#/components/schemas/Roles'
+          description: Minimum role required to participate in this event
+          default: mvg-member
+        edit_role:
+          allOf:
+            - $ref: '#/components/schemas/Roles'
+          description: Minimum role required to edit this event
+          default: mvg-member
       type: object
       required:
         - name
         - start_time
         - location
-        - author_id
       title: EventCreate
     HTTPValidationError:
       properties:
@@ -1144,6 +1207,13 @@ components:
         - situation
         - author_id
       title: RecipeCreate
+    Roles:
+      type: string
+      enum:
+        - guest
+        - mkm-member
+        - mvg-member
+      title: Roles
     Situation:
       type: string
       enum:

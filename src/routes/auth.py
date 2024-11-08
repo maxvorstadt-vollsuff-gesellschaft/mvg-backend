@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Tuple
 from fastapi import APIRouter, Depends, HTTPException
 from passlib.context import CryptContext
 from fastapi.responses import RedirectResponse
@@ -6,6 +6,7 @@ import jwt
 from pydantic import BaseModel
 import requests
 from starlette.responses import JSONResponse
+from fastapi_keycloak import OIDCUser
 
 from ..models import Member
 from ..auth_utils import idp
@@ -73,6 +74,7 @@ def logout():
 
 @router.get("/me", operation_id="read_current_user")
 async def read_users_me(
-    current_user: Annotated[models.Member, Depends(get_current_user)]
+    user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
 ) -> schemas.Member:
-    return schemas.Member.model_validate(current_user)
+    _, member = user_info
+    return schemas.Member.model_validate(member)

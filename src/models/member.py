@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 association_table = Table(
     "participated",
     Base.metadata,
-    Column("member_id", ForeignKey("members.id", ondelete="CASCADE")),
+    Column("member_id", ForeignKey("members.user_sub", ondelete="CASCADE")),
     Column("event_id", ForeignKey("events.id", ondelete="CASCADE")),
     Column("vollsuff", Boolean)
 )
@@ -22,8 +22,8 @@ association_table = Table(
 class Member(Base):
     __tablename__ = 'members'
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    user_sub: Mapped[str] = mapped_column(String, index=True, unique=True, nullable=False)
+    id: Mapped[int] = mapped_column(Integer, index=True, autoincrement=True, nullable=True, default=0)
+    user_sub: Mapped[str] = mapped_column(String, index=True, unique=True, nullable=False, primary_key=True)
     name: Mapped[str] = mapped_column(String)
     participated_in: Mapped[List["Event"]] = relationship(
         "Event",

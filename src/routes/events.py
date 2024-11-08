@@ -1,9 +1,10 @@
 from collections import defaultdict
 from datetime import timedelta
-from typing import Annotated
+from typing import Annotated, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from icalendar import Calendar, Event as ICalEvent
+from fastapi_keycloak import OIDCUser
 
 from .. import models, schemas
 from ..auth_utils import get_current_user
@@ -18,19 +19,22 @@ router = APIRouter(
 @router.get("", operation_id="list_events")
 def events(
     event_service: Annotated[EventService, Depends(get_event_service)],
+    user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
     skip: int = 0,
     limit: int = 100
 ) -> list[schemas.Event]:
-    db_events = event_service.get_events(skip=skip, limit=limit)
+    oidc_user, _ = user_info
+    db_events = event_service.get_events(oidc_user, skip=skip, limit=limit)
     return [schemas.Event.model_validate(event) for event in db_events]
 
 @router.post("", operation_id="create_event")
 def create_event(
     event: schemas.EventCreate,
-    current_user: Annotated[models.Member, Depends(get_current_user)],
+    user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
     event_service: Annotated[EventService, Depends(get_event_service)]
 ) -> schemas.Event:
-    db_event = event_service.create_event(event, current_user)
+    oidc_user, _ = user_info
+    db_event = event_service.create_event(event, oidc_user)
     return schemas.Event.model_validate(db_event)
 
 @router.get("/event/{id}", operation_id="get_event_by_id")
@@ -44,36 +48,31 @@ def get_event(
 @router.delete("/event/{id}", operation_id="delete_event_by_id")
 def delete_event(
     id: int,
-    current_user: Annotated[models.Member, Depends(get_current_user)],
+    user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
     event_service: Annotated[EventService, Depends(get_event_service)]
 ) -> schemas.Event:
-    db_event = event_service.delete_event(id, current_user)
+    oidc_user, _ = user_info
+    db_event = event_service.delete_event(id, oidc_user)
     return schemas.Event.model_validate(db_event)
 
 @router.post("/{event_id}/participate", operation_id="add_event_participant")
 def participate(
     event_id: int,
-    member: int,
-    current_user: Annotated[models.Member, Depends(get_current_user)],
+    user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
     event_service: Annotated[EventService, Depends(get_event_service)]
 ) -> schemas.Event:
-    if current_user.id != member:
-        raise HTTPException(status_code=403, detail="You can only sign up yourself!")
-    
-    db_event = event_service.participate_in_event(event_id, current_user)
+    oidc_user, _ = user_info
+    db_event = event_service.participate_in_event(event_id, oidc_user)
     return schemas.Event.from_orm(db_event)
 
 @router.delete("/{event_id}/participate", operation_id="remove_event_participant")
 def remove_participant(
     event_id: int,
-    member: int,
-    current_user: Annotated[models.Member, Depends(get_current_user)],
+    user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
     event_service: Annotated[EventService, Depends(get_event_service)]
 ) -> schemas.Event:
-    if current_user.id != member:
-        raise HTTPException(status_code=403, detail="You can only remove your participation")
-    
-    db_event = event_service.remove_participant(event_id, current_user)
+    oidc_user, _ = user_info
+    db_event = event_service.remove_participant(event_id, oidc_user)
     return schemas.Event.from_orm(db_event)
 
 @router.get("/upcoming", operation_id="list_upcoming_events")
@@ -88,6 +87,7 @@ def events(
 def get_calendar_events(
     event_service: Annotated[EventService, Depends(get_event_service)]
 ) -> Response:
+    return "Not implemented"
     db_events = event_service.get_events(skip=0, limit=100)
     
     cal = Calendar()

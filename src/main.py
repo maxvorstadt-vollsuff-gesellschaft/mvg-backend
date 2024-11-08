@@ -1,11 +1,12 @@
 import datetime
-from typing import Annotated
+from typing import Annotated, Tuple
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI, Depends, HTTPException
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_keycloak import OIDCUser
 
 from . import routes
 from .auth_utils import get_current_user
@@ -90,7 +91,7 @@ def set_password(pw: str):
 @app.post("/drinks", operation_id="create_drink", tags=["drinks", "mvg"])
 async def post_drink(
         drink: schemas.DrinkCreate,
-        current_user: Annotated[models.Member, Depends(get_current_user)],
+        _user: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
         db=Depends(get_db)
 ) -> schemas.Drink:
     drink = repositories.drink_repository.create(db, drink)

@@ -1,7 +1,7 @@
-from typing import Annotated, List
+from typing import Annotated, List, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException
-
+from fastapi_keycloak import OIDCUser
 from .. import models, schemas
 from ..auth_utils import get_current_user
 from ..repositories import get_quote_repository
@@ -26,7 +26,7 @@ def get_quotes(
 @router.post("", response_model=schemas.Quote, operation_id="create_quote")
 def create_quote(
     quote: schemas.QuoteCreate,
-    current_user: Annotated[models.Member, Depends(get_current_user)],
+    _user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
     quote_repository: Annotated[CRUDQuote, Depends(get_quote_repository)]
 ) -> schemas.Quote:
     db_quote = quote_repository.create(quote)
@@ -41,4 +41,3 @@ def quote_of_the_day(
     if db_quote is None:
         raise HTTPException(status_code=204, detail="There are no quotes yet")
     return schemas.Quote.model_validate(db_quote)
-

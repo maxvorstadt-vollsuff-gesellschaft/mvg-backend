@@ -1,6 +1,7 @@
-from typing import Annotated, List
+from typing import Annotated, List, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_keycloak import OIDCUser
 
 from .. import models, schemas
 from ..auth_utils import get_current_user, get_current_user_with_roles
@@ -15,11 +16,12 @@ router = APIRouter(
 @router.post("", operation_id="create_recipe")
 def create_recipe(
     recipe: schemas.RecipeCreate,
-    current_user: Annotated[models.Member, Depends(get_current_user_with_roles(required_roles=["mvg-member"]))],
+    _user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user_with_roles(required_roles=["mvg-member"]))],
     recipe_repository: Annotated[CRUDRecipe, Depends(get_recipe_repository)]
 ) -> schemas.Recipe:
     try:
-        recipe.author_id = current_user.id
+        oidc_user, member = _user_info
+        recipe.author_id = member.id
         db_recipe = recipe_repository.save_recipe(recipe)
         return schemas.Recipe.model_validate(db_recipe)
     except ValueError as err:
@@ -44,12 +46,13 @@ def get_all_recipes(
 
 @router.delete("", operation_id="delete_recipe")
 def delete_recipe(
-    current_user: Annotated[models.Member, Depends(get_current_user)],
+    _user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
     recipe_repository: Annotated[CRUDRecipe, Depends(get_recipe_repository)],
     recipe_id: int = None,
     recipe_name: str = None
 ) -> dict:
     try:
+        oidc_user, member = _user_info
         recipe_repository.delete_recipe(recipe_id=recipe_id, recipe_name=recipe_name)
         return {"detail": "Recipe deleted successfully"}
     except ValueError as err:

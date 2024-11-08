@@ -143,6 +143,24 @@
         ],
         "summary": "Read Users Me",
         "operationId": "read_current_user",
+        "parameters": [
+          {
+            "name": "args",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Args"
+            }
+          },
+          {
+            "name": "kwargs",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Kwargs"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -153,13 +171,18 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     },
     "/events": {
@@ -189,6 +212,22 @@
               "type": "integer",
               "default": 100,
               "title": "Limit"
+            }
+          },
+          {
+            "name": "args",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Args"
+            }
+          },
+          {
+            "name": "kwargs",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Kwargs"
             }
           }
         ],
@@ -226,9 +265,22 @@
         ],
         "summary": "Create Event",
         "operationId": "create_event",
-        "security": [
+        "parameters": [
           {
-            "OAuth2PasswordBearer": []
+            "name": "args",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Args"
+            }
+          },
+          {
+            "name": "kwargs",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Kwargs"
+            }
           }
         ],
         "requestBody": {
@@ -246,7 +298,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Event"
+                }
               }
             }
           },
@@ -312,11 +366,6 @@
         ],
         "summary": "Delete Event",
         "operationId": "delete_event_by_id",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
         "parameters": [
           {
             "name": "id",
@@ -325,6 +374,22 @@
             "schema": {
               "type": "integer",
               "title": "Id"
+            }
+          },
+          {
+            "name": "args",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Args"
+            }
+          },
+          {
+            "name": "kwargs",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Kwargs"
             }
           }
         ],
@@ -360,11 +425,6 @@
         ],
         "summary": "Participate",
         "operationId": "add_event_participant",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
         "parameters": [
           {
             "name": "event_id",
@@ -382,6 +442,22 @@
             "schema": {
               "type": "integer",
               "title": "Member"
+            }
+          },
+          {
+            "name": "args",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Args"
+            }
+          },
+          {
+            "name": "kwargs",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Kwargs"
             }
           }
         ],
@@ -415,11 +491,6 @@
         ],
         "summary": "Remove Participant",
         "operationId": "remove_event_participant",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
         "parameters": [
           {
             "name": "event_id",
@@ -437,6 +508,22 @@
             "schema": {
               "type": "integer",
               "title": "Member"
+            }
+          },
+          {
+            "name": "args",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Args"
+            }
+          },
+          {
+            "name": "kwargs",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Kwargs"
             }
           }
         ],
@@ -460,6 +547,69 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/events/upcoming": {
+      "get": {
+        "tags": [
+          "events",
+          "mvg"
+        ],
+        "summary": "Events",
+        "operationId": "get_upcoming_events",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Event"
+                  },
+                  "title": "Response Get Upcoming Events"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/calendar": {
+      "get": {
+        "tags": [
+          "events",
+          "mvg"
+        ],
+        "summary": "Get Calendar Events",
+        "operationId": "get_calendar_events",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
           }
         }
       }
@@ -517,54 +667,6 @@
                     }
                   ],
                   "title": "Response List Event Drinks"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/events/upcoming": {
-      "get": {
-        "tags": [
-          "events",
-          "mvg"
-        ],
-        "summary": "Events",
-        "operationId": "get_upcoming_events",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 10,
-              "title": "Limit"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Event"
-                  },
-                  "title": "Response Get Upcoming Events"
                 }
               }
             }
@@ -691,16 +793,6 @@
         "operationId": "list_quotes",
         "parameters": [
           {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "default": 10,
-              "title": "Limit"
-            }
-          },
-          {
             "name": "skip",
             "in": "query",
             "required": false,
@@ -709,6 +801,16 @@
               "default": 0,
               "title": "Skip"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "title": "Limit"
+            }
           }
         ],
         "responses": {
@@ -716,7 +818,13 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Quote"
+                  },
+                  "title": "Response List Quotes"
+                }
               }
             }
           },
@@ -739,9 +847,22 @@
         ],
         "summary": "Create Quote",
         "operationId": "create_quote",
-        "security": [
+        "parameters": [
           {
-            "OAuth2PasswordBearer": []
+            "name": "args",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Args"
+            }
+          },
+          {
+            "name": "kwargs",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Kwargs"
+            }
           }
         ],
         "requestBody": {
@@ -957,7 +1078,13 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Card"
+                  },
+                  "type": "array",
+                  "title": "Response Get All Cards"
+                }
               }
             }
           }
@@ -985,7 +1112,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
               }
             }
           },
@@ -1026,7 +1155,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
               }
             }
           },
@@ -1051,9 +1182,22 @@
         ],
         "summary": "Create Recipe",
         "operationId": "create_recipe",
-        "security": [
+        "parameters": [
           {
-            "OAuth2PasswordBearer": []
+            "name": "args",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Args"
+            }
+          },
+          {
+            "name": "kwargs",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Kwargs"
+            }
           }
         ],
         "requestBody": {
@@ -1071,7 +1215,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Recipe"
+                }
               }
             }
           },
@@ -1118,11 +1264,6 @@
         ],
         "summary": "Delete Recipe",
         "operationId": "delete_recipe",
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ],
         "parameters": [
           {
             "name": "recipe_id",
@@ -1141,6 +1282,22 @@
               "type": "string",
               "title": "Recipe Name"
             }
+          },
+          {
+            "name": "args",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Args"
+            }
+          },
+          {
+            "name": "kwargs",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Kwargs"
+            }
           }
         ],
         "responses": {
@@ -1148,7 +1305,10 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "object",
+                  "title": "Response Delete Recipe"
+                }
               }
             }
           },
@@ -1305,15 +1465,33 @@
         ],
         "summary": "Post Drink",
         "operationId": "create_drink",
+        "parameters": [
+          {
+            "name": "args",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Args"
+            }
+          },
+          {
+            "name": "kwargs",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Kwargs"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/DrinkCreate"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
@@ -1336,12 +1514,7 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "OAuth2PasswordBearer": []
-          }
-        ]
+        }
       }
     }
   },
@@ -1364,14 +1537,23 @@
         ],
         "title": "BaseChug"
       },
-      "ComplexityLevel": {
-        "type": "string",
-        "enum": [
-          "5-15",
-          "15-35",
-          "40+"
+      "Card": {
+        "properties": {
+          "member_id": {
+            "type": "integer",
+            "title": "Member Id"
+          },
+          "card_uid": {
+            "type": "string",
+            "title": "Card Uid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "member_id",
+          "card_uid"
         ],
-        "title": "ComplexityLevel"
+        "title": "Card"
       },
       "CreateCard": {
         "properties": {
@@ -1510,6 +1692,33 @@
             "title": "Duration",
             "description": "Duration in Minutes. Null means open end."
           },
+          "view_role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Roles"
+              }
+            ],
+            "description": "Minimum role required to view this event",
+            "default": "guest"
+          },
+          "participate_role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Roles"
+              }
+            ],
+            "description": "Minimum role required to participate in this event",
+            "default": "mvg-member"
+          },
+          "edit_role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Roles"
+              }
+            ],
+            "description": "Minimum role required to edit this event",
+            "default": "mvg-member"
+          },
           "id": {
             "type": "integer",
             "title": "Id"
@@ -1577,24 +1786,39 @@
             "title": "Duration",
             "description": "Duration in Minutes. Null means open end."
           },
-          "author_id": {
-            "anyOf": [
+          "view_role": {
+            "allOf": [
               {
-                "type": "integer"
-              },
-              {
-                "type": "null"
+                "$ref": "#/components/schemas/Roles"
               }
             ],
-            "title": "Author Id"
+            "description": "Minimum role required to view this event",
+            "default": "guest"
+          },
+          "participate_role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Roles"
+              }
+            ],
+            "description": "Minimum role required to participate in this event",
+            "default": "mvg-member"
+          },
+          "edit_role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Roles"
+              }
+            ],
+            "description": "Minimum role required to edit this event",
+            "default": "mvg-member"
           }
         },
         "type": "object",
         "required": [
           "name",
           "start_time",
-          "location",
-          "author_id"
+          "location"
         ],
         "title": "EventCreate"
       },
@@ -1737,18 +1961,19 @@
             "title": "Description",
             "description": "A brief description of the recipe."
           },
-          "time_of_day": {
-            "$ref": "#/components/schemas/TimeOfDay"
-          },
-          "complexity": {
+          "time": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ComplexityLevel"
+                "type": "integer"
               },
               {
                 "type": "null"
               }
-            ]
+            ],
+            "title": "Time"
+          },
+          "situation": {
+            "$ref": "#/components/schemas/Situation"
           },
           "id": {
             "type": "integer",
@@ -1768,8 +1993,8 @@
         "type": "object",
         "required": [
           "name",
-          "time_of_day",
-          "complexity",
+          "time",
+          "situation",
           "id",
           "author"
         ],
@@ -1793,18 +2018,19 @@
             "title": "Description",
             "description": "A brief description of the recipe."
           },
-          "time_of_day": {
-            "$ref": "#/components/schemas/TimeOfDay"
-          },
-          "complexity": {
+          "time": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/ComplexityLevel"
+                "type": "integer"
               },
               {
                 "type": "null"
               }
-            ]
+            ],
+            "title": "Time"
+          },
+          "situation": {
+            "$ref": "#/components/schemas/Situation"
           },
           "author_id": {
             "anyOf": [
@@ -1821,20 +2047,29 @@
         "type": "object",
         "required": [
           "name",
-          "time_of_day",
-          "complexity",
+          "time",
+          "situation",
           "author_id"
         ],
         "title": "RecipeCreate"
       },
-      "TimeOfDay": {
+      "Roles": {
+        "type": "string",
+        "enum": [
+          "guest",
+          "mkm-member",
+          "mvg-member"
+        ],
+        "title": "Roles"
+      },
+      "Situation": {
         "type": "string",
         "enum": [
           "breakfast",
           "lunch",
           "dinner"
         ],
-        "title": "TimeOfDay"
+        "title": "Situation"
       },
       "TokenRefreshRequest": {
         "properties": {
@@ -1905,17 +2140,6 @@
           "type"
         ],
         "title": "ValidationError"
-      }
-    },
-    "securitySchemes": {
-      "OAuth2PasswordBearer": {
-        "type": "oauth2",
-        "flows": {
-          "password": {
-            "scopes": {},
-            "tokenUrl": "https://auth.toskana-fraktion.social/auth/realms/toskana-fraktion/protocol/openid-connect/token"
-          }
-        }
       }
     }
   }
