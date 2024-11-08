@@ -1,9 +1,9 @@
-from .member import member_repository
-from .event import event_repository
-from .quote import quote_repository
-from .quote_rotation import rotation_repository
-from .auth import auth_repository
-from .drink import drink_repository
-from .chug import chug_repository
-from .card import card_repository
-from .recipe import recipe_repository
+from .member import get_member_repository, CRUDMember
+from .event import get_event_repository, CRUDEvent
+from .quote import get_quote_repository, CRUDQuote
+from .quote_rotation import get_quote_rotation_repository, CRUDQuoteRotation
+from .auth import get_auth_repository, CRUDAuth
+from .drink import get_drink_repository, CRUDDrink
+from .chug import get_chug_repository, CRUDChug
+from .card import get_card_repository, CRUDCard
+from .recipe import get_recipe_repository, CRUDRecipe

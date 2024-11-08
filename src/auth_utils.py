@@ -1,18 +1,14 @@
-import datetime
 import os
-from typing import Union, Annotated
+from typing import Annotated, Callable
 
 from fastapi import HTTPException, Depends
-from fastapi_keycloak import OIDCUser
+from fastapi_keycloak import OIDCUser, FastAPIKeycloak
 from jwt import InvalidTokenError
-from sqlalchemy.orm import Session
 from starlette import status
 
-from .database import get_db
-from . import repositories
+from .repositories import get_member_repository
+from .repositories.member import CRUDMember
 from . import models
-
-from fastapi_keycloak import FastAPIKeycloak
 
 idp = FastAPIKeycloak(
     server_url="https://auth.toskana-fraktion.social/auth",
@@ -20,13 +16,13 @@ idp = FastAPIKeycloak(
     client_secret=os.environ.get("KC_CLIENT_SECRET", "").strip(),
     realm="toskana-fraktion",
     admin_client_secret=os.environ.get("KC_ADMIN_SECRET", "").strip(),
-    callback_uri=os.environ.get("KC_CALLBACK", "").strip() # http://localhost:8000/auth/callback
+    callback_uri=os.environ.get("KC_CALLBACK", "").strip()  # http://localhost:8000/auth/callback
 )
 
 
 async def get_current_user(
-        db: Annotated[Session, Depends(get_db)],
-        user: OIDCUser = Depends(idp.get_current_user()),
+    member_repository: Annotated[CRUDMember, Depends(get_member_repository)],
+    user: OIDCUser = Depends(idp.get_current_user()),
 ) -> models.Member:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -35,19 +31,20 @@ async def get_current_user(
     )
     
     try:
-        user = repositories.member_repository.get_sub(db, user.sub)
-        if user is None:
+        user_db = member_repository.get_sub(user.sub)
+        if user_db is None:
             raise credentials_exception
-        return user
+        return user_db
     except InvalidTokenError:
         raise credentials_exception
 
+
 def get_current_user_with_roles(
-        required_roles: list[str] = []
-) -> models.Member:
+    required_roles: list[str] = []
+) -> Callable:
     async def inner(
-            db: Annotated[Session, Depends(get_db)],
-            user: OIDCUser = Depends(idp.get_current_user(required_roles=required_roles))
-    ):
-        return await get_current_user(db, user)
+        member_repository: Annotated[CRUDMember, Depends(get_member_repository)],
+        user: OIDCUser = Depends(idp.get_current_user(required_roles=required_roles))
+    ) -> models.Member:
+        return await get_current_user(member_repository, user)
     return inner

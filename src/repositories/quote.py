@@ -1,14 +1,20 @@
+from typing import Annotated, Optional
+from fastapi import Depends
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from .base import CRUDBase
 from ..models import Quote
+from ..database import get_db
 
 
-class QuoteRepository(CRUDBase[Quote]):
-    @staticmethod
-    def get_random(db: Session):
-        return db.query(Quote).order_by(func.random()).first()
+class CRUDQuote(CRUDBase[Quote]):
+    def __init__(self, db: Annotated[Session, Depends(get_db)]):
+        super().__init__(Quote, db)
+
+    def get_random(self) -> Optional[Quote]:
+        return self.db.query(self.model).order_by(func.random()).first()
 
 
-quote_repository = QuoteRepository(Quote)
+def get_quote_repository(db: Annotated[Session, Depends(get_db)]) -> CRUDQuote:
+    return CRUDQuote(db)

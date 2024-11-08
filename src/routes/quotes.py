@@ -1,12 +1,11 @@
-from typing import Annotated
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from .. import models
+from .. import models, schemas
 from ..auth_utils import get_current_user
-from .. import repositories
-from .. import schemas
-from ..database import get_db
+from ..repositories import get_quote_repository
+from ..repositories.quote import CRUDQuote
 
 router = APIRouter(
     prefix="/quotes",
@@ -15,24 +14,30 @@ router = APIRouter(
 
 
 @router.get("", operation_id="list_quotes")
-def get_quotes(limit: int = 10, skip: int = 0, db=Depends(get_db)):
-    db_quotes = repositories.quote_repository.get_multi(db, limit=limit, skip=skip)
+def get_quotes(
+    quote_repository: Annotated[CRUDQuote, Depends(get_quote_repository)],
+    skip: int = 0,
+    limit: int = 10,
+) -> List[schemas.Quote]:
+    db_quotes = quote_repository.get_multi(skip=skip, limit=limit)
     return [schemas.Quote.model_validate(db_quote) for db_quote in db_quotes]
 
 
 @router.post("", response_model=schemas.Quote, operation_id="create_quote")
 def create_quote(
-        quote: schemas.QuoteCreate,
-        _current_user: Annotated[models.Member, Depends(get_current_user)],
-        db=Depends(get_db)
+    quote: schemas.QuoteCreate,
+    current_user: Annotated[models.Member, Depends(get_current_user)],
+    quote_repository: Annotated[CRUDQuote, Depends(get_quote_repository)]
 ) -> schemas.Quote:
-    db_quote = repositories.quote_repository.create(db, quote)
+    db_quote = quote_repository.create(quote)
     return schemas.Quote.model_validate(db_quote)
 
 
 @router.get("/random_quote", operation_id="get_random_quote")
-def quote_of_the_day(db=Depends(get_db)) -> schemas.Quote:
-    db_quote = repositories.quote_repository.get_random(db)
+def quote_of_the_day(
+    quote_repository: Annotated[CRUDQuote, Depends(get_quote_repository)]
+) -> schemas.Quote:
+    db_quote = quote_repository.get_random()
     if db_quote is None:
         raise HTTPException(status_code=204, detail="There are no quotes yet")
     return schemas.Quote.model_validate(db_quote)

@@ -1,52 +1,58 @@
-from typing import Type, TypeVar, Generic
+from typing import Type, TypeVar, Generic, Annotated, List
+from fastapi import Depends
 from sqlalchemy.orm import Session
 from ..models.base import Base
+from ..database import get_db
 
 ModelType = TypeVar("ModelType", bound=Base)
 
 
 class CRUDBase(Generic[ModelType]):
-    def __init__(self, model: Type[ModelType]):
+    def __init__(
+        self,
+        model: Type[ModelType],
+        db: Annotated[Session, Depends(get_db)]
+    ):
         self.model = model
+        self.db = db
 
-    def get(self, db: Session, id: int) -> ModelType:
-        return db.query(self.model).filter(self.model.id == id).first()
+    def get(self, id: int) -> ModelType | None:
+        return self.db.query(self.model).filter(self.model.id == id).first()
 
-    def get_multi(self, db: Session, skip: int = 0, limit: int = 10):
-        return db.query(self.model).offset(skip).limit(limit).all()
+    def get_multi(
+        self, 
+        skip: int = 0, 
+        limit: int = 10
+    ) -> List[ModelType]:
+        return self.db.query(self.model).offset(skip).limit(limit).all()
 
-    def create(self, db: Session, obj_in) -> ModelType:
+    def create(self, obj_in) -> ModelType:
         db_obj = obj_in
-        if type(obj_in) is dict:
+        if isinstance(obj_in, dict):
             db_obj = self.model(**obj_in)
-        elif type(obj_in) is not self.model:
+        elif not isinstance(obj_in, self.model):
             db_obj = self.model(**obj_in.__dict__)
-        db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
+        self.db.add(db_obj)
+        self.db.commit()
+        self.db.refresh(db_obj)
         return db_obj
 
-    def create_batch(self, db, obj_in_list):
-        db.bulk_save_objects([self.model(**obj_in.dict()) for obj_in in obj_in_list])
-        db.commit()
+    def create_batch(self, obj_in_list: List[ModelType]) -> None:
+        self.db.bulk_save_objects([self.model(**obj_in.dict()) for obj_in in obj_in_list])
+        self.db.commit()
 
-    @staticmethod
-    def update(db: Session, db_obj: ModelType, obj_in) -> ModelType:
+    def update(self, db_obj: ModelType, obj_in) -> ModelType:
         obj_data = obj_in.dict(exclude_unset=True)
         for field, value in obj_data.items():
             setattr(db_obj, field, value)
-        db.commit()
-        db.refresh(db_obj)
+        self.db.commit()
+        self.db.refresh(db_obj)
         return db_obj
 
-    @staticmethod
-    def update_db_model(db: Session, db_obj: ModelType):
-        db.commit()
-
-    def remove(self, db: Session, id: int) -> ModelType:
-        obj = db.query(self.model).get(id)
+    def remove(self, id: int) -> ModelType:
+        obj = self.db.query(self.model).get(id)
         if obj is None:
             raise ValueError("Object not found")
-        db.delete(obj)
-        db.commit()
+        self.db.delete(obj)
+        self.db.commit()
         return obj
