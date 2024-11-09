@@ -7,4 +7,4 @@ from .auth import Auth
 from .drink import Drink
 from .chug import Chug
 from .cards import Card
-from .recipe import Recipe
+from .recipe import Recipe, Situation

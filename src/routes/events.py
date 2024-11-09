@@ -82,7 +82,6 @@ def events(
     limit: int = 10,
 ) -> list[schemas.Event]:
     oidc_user, _ = user_info
-    print(oidc_user.roles)
     db_events = event_service.get_upcoming_events(oidc_user, limit=limit)
     return [schemas.Event.from_orm(event) for event in db_events]
 

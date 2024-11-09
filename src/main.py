@@ -17,6 +17,9 @@ from . import schemas
 from . import repositories
 from . import database
 from .database import engine, get_db
+from .minio_client import minio_client, cleanup_bucket
+
+cleanup_bucket()
 
 app = FastAPI()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

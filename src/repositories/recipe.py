@@ -22,7 +22,8 @@ class CRUDRecipe(CRUDBase[Recipe]):
             situation=recipe.situation,
             time=recipe.time,
             description=recipe.description,
-            author_id=recipe.author_id
+            author_id=recipe.author_id,
+            image_url=recipe.image_url
         )
         self.db.add(recipe_db)
         self.db.commit()

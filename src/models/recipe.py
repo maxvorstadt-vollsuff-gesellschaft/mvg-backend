@@ -21,3 +21,4 @@ class Recipe(Base):
     description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     author_id: Mapped[str] = mapped_column(String, ForeignKey('members.user_sub'), nullable=False)
     author: Mapped[Member] = relationship("Member", back_populates="recipes")
+    image_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)

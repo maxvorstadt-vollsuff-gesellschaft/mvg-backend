@@ -680,12 +680,37 @@ paths:
       operationId: create_recipe
       security:
         - OAuth2PasswordBearer: []
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Name
+        - name: situation
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/Situation'
+        - name: description
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Description
+        - name: time
+          in: query
+          required: true
+          schema:
+            type: integer
+            title: Time
       requestBody:
-        required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/RecipeCreate'
+              allOf:
+                - $ref: '#/components/schemas/Body_create_recipe'
+              title: Body
       responses:
         '200':
           description: Successful Response
@@ -777,6 +802,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /recipes/image:
+    post:
+      tags:
+        - recipes
+        - mvg
+      summary: Upload Recipe Image
+      operationId: upload_recipe_image
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_recipe_image'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: string
+                title: Response Upload Recipe Image
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /auth/hash:
     post:
       tags:
@@ -845,6 +897,26 @@ components:
         - member
         - time
       title: BaseChug
+    Body_create_recipe:
+      properties:
+        image:
+          anyOf:
+            - type: string
+              format: binary
+            - type: 'null'
+          title: Image
+      type: object
+      title: Body_create_recipe
+    Body_upload_recipe_image:
+      properties:
+        image:
+          type: string
+          format: binary
+          title: Image
+      type: object
+      required:
+        - image
+      title: Body_upload_recipe_image
     Card:
       properties:
         member_id:
@@ -1128,6 +1200,11 @@ components:
           anyOf:
             - $ref: '#/components/schemas/Member'
             - type: 'null'
+        image_url:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Image Url
       type: object
       required:
         - name
@@ -1135,37 +1212,8 @@ components:
         - situation
         - id
         - author
+        - image_url
       title: Recipe
-    RecipeCreate:
-      properties:
-        name:
-          type: string
-          title: Name
-        description:
-          anyOf:
-            - type: string
-            - type: 'null'
-          title: Description
-          description: A brief description of the recipe.
-        time:
-          anyOf:
-            - type: integer
-            - type: 'null'
-          title: Time
-        situation:
-          $ref: '#/components/schemas/Situation'
-        author_id:
-          anyOf:
-            - type: integer
-            - type: 'null'
-          title: Author Id
-      type: object
-      required:
-        - name
-        - time
-        - situation
-        - author_id
-      title: RecipeCreate
     Roles:
       type: string
       enum:
