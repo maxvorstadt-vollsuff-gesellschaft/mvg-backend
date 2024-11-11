@@ -8,3 +8,4 @@ from .drink import Drink
 from .chug import Chug
 from .cards import Card
 from .recipe import Recipe, Situation
+from .cal_link import CalendarLink

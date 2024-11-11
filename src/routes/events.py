@@ -1,14 +1,17 @@
 from collections import defaultdict
 from datetime import timedelta
+import json
 from typing import Annotated, Tuple
+import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from icalendar import Calendar, Event as ICalEvent
 from fastapi_keycloak import OIDCUser
 
 from .. import models, schemas
-from ..auth_utils import get_current_user
+from ..auth_utils import get_current_user, idp
 from ..services.event import EventService, get_event_service
+from ..repositories import get_calendar_link_repository, CRUDCalendarLink
 from ..database import get_db
 
 router = APIRouter(
@@ -85,12 +88,31 @@ def events(
     db_events = event_service.get_upcoming_events(oidc_user, limit=limit)
     return [schemas.Event.from_orm(event) for event in db_events]
 
-@router.get("/calendar", operation_id="get_calendar_events", response_class=Response)
+
+@router.post("/calendar", operation_id="create_calendar_link")
+def create_calendar_link(
+    user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
+    calendar_link_repository: Annotated[CRUDCalendarLink, Depends(get_calendar_link_repository)]
+) -> str:
+    oidc_user, _ = user_info
+    tag = uuid.uuid4()
+    db_calendar_link = calendar_link_repository.create(models.CalendarLink(member_sub=oidc_user.sub, tag=tag))
+    link = f"https://mvg.life/events/calendar/{tag}"
+    return link
+
+
+@router.get("/calendar/{tag}", operation_id="get_calendar_events", response_class=Response)
 def get_calendar_events(
-    event_service: Annotated[EventService, Depends(get_event_service)]
+    tag: str,
+    event_service: Annotated[EventService, Depends(get_event_service)],
+    calendar_link_repository: Annotated[CRUDCalendarLink, Depends(get_calendar_link_repository)]
 ) -> Response:
-    return "Not implemented"
-    db_events = event_service.get_events(skip=0, limit=100)
+    db_calendar_link = calendar_link_repository.get_by_tag(tag)
+    if not db_calendar_link:
+        raise HTTPException(status_code=404, detail="Calendar link not found")
+    roles = idp.get_user_roles(db_calendar_link.member_sub)
+
+    db_events = event_service.get_accessible_events_by_role(roles, skip=0, limit=100)
     
     cal = Calendar()
     cal.add('prodid', '-//MVG Calendar//mvg.life//')

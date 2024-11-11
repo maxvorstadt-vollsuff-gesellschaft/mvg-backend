@@ -2,6 +2,7 @@ import datetime
 from typing import Annotated, Tuple
 
 from apscheduler.schedulers.background import BackgroundScheduler
+from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
@@ -17,9 +18,9 @@ from . import schemas
 from . import repositories
 from . import database
 from .database import engine, get_db
-from .minio_client import minio_client, cleanup_bucket
+from .minio_client import minio_client
 
-cleanup_bucket()
+load_dotenv()
 
 app = FastAPI()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

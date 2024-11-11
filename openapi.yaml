@@ -315,15 +315,45 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
   /events/calendar:
+    post:
+      tags:
+        - events
+        - mvg
+      summary: Create Calendar Link
+      operationId: create_calendar_link
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: string
+                title: Response Create Calendar Link
+      security:
+        - OAuth2PasswordBearer: []
+  /events/calendar/{tag}:
     get:
       tags:
         - events
         - mvg
       summary: Get Calendar Events
       operationId: get_calendar_events
+      parameters:
+        - name: tag
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Tag
       responses:
         '200':
           description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /events/{event_id}/drinks:
     get:
       tags:
@@ -1193,6 +1223,11 @@ components:
           title: Time
         situation:
           $ref: '#/components/schemas/Situation'
+        image_url:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Image Url
         id:
           type: integer
           title: Id
@@ -1200,19 +1235,14 @@ components:
           anyOf:
             - $ref: '#/components/schemas/Member'
             - type: 'null'
-        image_url:
-          anyOf:
-            - type: string
-            - type: 'null'
-          title: Image Url
       type: object
       required:
         - name
         - time
         - situation
+        - image_url
         - id
         - author
-        - image_url
       title: Recipe
     Roles:
       type: string

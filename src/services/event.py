@@ -97,6 +97,15 @@ class EventService:
         events = self.event_repository.get_multi(skip=skip, limit=limit)
         return [e for e in events if self.check_event_access(e, user, 'view')]
 
+    def get_accessible_events_by_role(
+        self,
+        roles: List[str],
+        skip: int = 0,
+        limit: int = 100
+    ) -> List[Event]:
+        events = self.event_repository.get_multi(skip=skip, limit=limit)
+        return [e for e in events if any(check_user_access(role, e.view_role) for role in roles)]
+
     def delete_event(self, id: int, user: OIDCUser) -> Event:
         event = self.event_repository.get(id)
         if not event:

@@ -7,3 +7,4 @@ from .drink import get_drink_repository, CRUDDrink
 from .chug import get_chug_repository, CRUDChug
 from .card import get_card_repository, CRUDCard
 from .recipe import get_recipe_repository, CRUDRecipe
+from .calendar import get_calendar_link_repository, CRUDCalendarLink
