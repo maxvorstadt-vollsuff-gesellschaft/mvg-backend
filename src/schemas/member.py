@@ -11,6 +11,7 @@ class MemberCreate(MemberBase):
 
 class Member(MemberCreate):
     id: int
+    user_sub: str
 
     class Config:
         from_attributes = True
