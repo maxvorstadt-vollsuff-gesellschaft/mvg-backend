@@ -126,7 +126,7 @@ def get_calendar_events(
         event_component = ICalEvent()
         event_component.add('summary', event.name)
         event_component.add('dtstart', event.start_time)
-        event_component.add('dtend', event.start_time + timedelta(hours=2))
+        event_component.add('dtend', event.start_time + timedelta(minutes=event.duration if event.duration else 60))
         event_component.add('location', event.location)
         event_component.add('description', f"created by {event.author.name}")
         
