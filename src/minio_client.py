@@ -4,8 +4,8 @@ import os
 
 minio_client = Minio(
     endpoint="minio.mvg.life",
-    access_key="b0Itoi8qNhrPGrqSkIKn",
-    secret_key="EKzBso5IwNBvYDW4P5AdOURAfWdI7waNwqbPkZnc",
+    access_key=os.getenv("MINIO_ACCESS_KEY"),
+    secret_key=os.getenv("MINIO_SECRET_KEY"),
     secure=True
 )
 
@@ -19,14 +19,11 @@ def upload_recipe_image(file_data, filename: str) -> str:
         file_data: Either bytes or a file-like object
         filename: Original filename with extension
     """
-    # Convert to bytes if file_data is a file-like object
     if hasattr(file_data, 'read'):
         file_data = file_data.read()
     
-    # Ensure bucket exists
     if not minio_client.bucket_exists(BUCKET_NAME):
         minio_client.make_bucket(BUCKET_NAME)
-        # Set bucket policy to public read
         policy = {
             "Version": "2012-10-17",
             "Statement": [
