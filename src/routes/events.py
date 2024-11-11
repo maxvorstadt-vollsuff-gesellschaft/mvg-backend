@@ -97,10 +97,10 @@ def create_calendar_link(
     oidc_user, _ = user_info
     existing_link = calendar_link_repository.get_by_member_sub(oidc_user.sub)
     if existing_link:
-        return f"https://mvg.life/events/calendar/{existing_link.tag}"
+        return f"https://api.mvg.life/events/calendar/{existing_link.tag}"
     tag = uuid.uuid4()
     db_cal_link = calendar_link_repository.create(models.CalendarLink(member_sub=oidc_user.sub, tag=tag))
-    link = f"https://mvg.life/events/calendar/{db_cal_link.tag}"
+    link = f"https://api.mvg.life/events/calendar/{db_cal_link.tag}"
     return link
 
 
