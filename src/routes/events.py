@@ -89,15 +89,18 @@ def events(
     return [schemas.Event.from_orm(event) for event in db_events]
 
 
-@router.post("/calendar", operation_id="create_calendar_link")
+@router.post("/calendar", operation_id="create_calendar_link", description="Create a calendar link for the user. If the user already has a link, the existing link is returned.")
 def create_calendar_link(
     user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
     calendar_link_repository: Annotated[CRUDCalendarLink, Depends(get_calendar_link_repository)]
 ) -> str:
     oidc_user, _ = user_info
+    existing_link = calendar_link_repository.get_by_member_sub(oidc_user.sub)
+    if existing_link:
+        return f"https://mvg.life/events/calendar/{existing_link.tag}"
     tag = uuid.uuid4()
-    db_calendar_link = calendar_link_repository.create(models.CalendarLink(member_sub=oidc_user.sub, tag=tag))
-    link = f"https://mvg.life/events/calendar/{tag}"
+    db_cal_link = calendar_link_repository.create(models.CalendarLink(member_sub=oidc_user.sub, tag=tag))
+    link = f"https://mvg.life/events/calendar/{db_cal_link.tag}"
     return link
 
 
