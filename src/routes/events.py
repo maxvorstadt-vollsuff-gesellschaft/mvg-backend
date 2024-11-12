@@ -114,7 +114,7 @@ def get_calendar_events(
     if not db_calendar_link:
         raise HTTPException(status_code=404, detail="Calendar link not found")
     roles = idp.get_user_roles(db_calendar_link.member_sub)
-
+    roles = [role.name for role in roles]
     db_events = event_service.get_accessible_events_by_role(roles, skip=0, limit=100)
     
     cal = Calendar()
