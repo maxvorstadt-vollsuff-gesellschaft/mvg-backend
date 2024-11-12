@@ -30,6 +30,27 @@ def events(
     db_events = event_service.get_events(oidc_user, skip=skip, limit=limit)
     return [schemas.Event.model_validate(event) for event in db_events]
 
+@router.get("/past", operation_id="list_past_events")
+def past_events(
+    event_service: Annotated[EventService, Depends(get_event_service)],
+    user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
+    skip: int = 0,
+    limit: int = 100
+) -> list[schemas.Event]:
+    oidc_user, _ = user_info
+    db_events = event_service.get_past_events(oidc_user, skip=skip, limit=limit)
+    return [schemas.Event.model_validate(event) for event in db_events]
+
+@router.get("/upcoming", operation_id="list_upcoming_events")
+def upcoming_events(
+    event_service: Annotated[EventService, Depends(get_event_service)],
+    user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
+    limit: int = 100
+) -> list[schemas.Event]:
+    oidc_user, _ = user_info
+    db_events = event_service.get_upcoming_events(oidc_user, limit=limit)
+    return [schemas.Event.model_validate(event) for event in db_events]
+
 @router.post("", operation_id="create_event")
 def create_event(
     event: schemas.EventCreate,
@@ -77,17 +98,6 @@ def remove_participant(
     oidc_user, _ = user_info
     db_event = event_service.remove_participant(event_id, oidc_user)
     return schemas.Event.from_orm(db_event)
-
-@router.get("/upcoming", operation_id="list_upcoming_events")
-def events(
-    event_service: Annotated[EventService, Depends(get_event_service)],
-    user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
-    limit: int = 10,
-) -> list[schemas.Event]:
-    oidc_user, _ = user_info
-    db_events = event_service.get_upcoming_events(oidc_user, limit=limit)
-    return [schemas.Event.from_orm(event) for event in db_events]
-
 
 @router.post("/calendar", operation_id="create_calendar_link", description="Create a calendar link for the user. If the user already has a link, the existing link is returned.")
 def create_calendar_link(

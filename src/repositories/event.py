@@ -11,6 +11,14 @@ class CRUDEvent(CRUDBase[Event]):
     def __init__(self, db: Annotated[Session, Depends(get_db)]):
         super().__init__(Event, db)
 
+    def get_past_events(self, skip: int = 0, limit: int = 100) -> List[Event]:
+        return (self.db.query(self.model)
+                .filter(self.model.start_time < datetime.now())
+                .order_by(desc(self.model.start_time))
+                .offset(skip)
+                .limit(limit)
+                .all())
+
     def get_next_upcoming_event(self, limit: int = 1) -> List[Event]:
         return (self.db.query(self.model)
                 .filter(self.model.start_time > datetime.now())

@@ -113,7 +113,15 @@ class EventService:
         if not self.check_event_access(event, user, 'edit'):
             raise HTTPException(status_code=403, detail="Not enough permissions")
         return self.event_repository.remove(id)
-
+    
+    def get_past_events(
+        self,
+        user: OIDCUser,
+        skip: int = 0,
+        limit: int = 100
+    ) -> List[Event]:
+        events = self.event_repository.get_past_events(skip=skip, limit=limit)
+        return [e for e in events if self.check_event_access(e, user, 'view')]
 
 def get_event_service(
     event_repo: Annotated[CRUDEvent, Depends(get_event_repository)]
