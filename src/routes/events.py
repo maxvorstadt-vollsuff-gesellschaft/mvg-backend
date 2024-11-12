@@ -11,7 +11,7 @@ from fastapi_keycloak import OIDCUser
 from .. import models, schemas
 from ..auth_utils import get_current_user, idp
 from ..services.event import EventService, get_event_service
-from ..repositories import get_calendar_link_repository, CRUDCalendarLink
+from ..repositories import get_calendar_link_repository, CRUDCalendarLink, CRUDDrink, get_drink_repository
 from ..database import get_db
 
 router = APIRouter(
@@ -152,10 +152,10 @@ def get_calendar_events(
 @router.get("/{event_id}/drinks", operation_id="list_event_drinks")
 def get_drinks_for_event(
     event_id: int,
+    drink_repository: Annotated[CRUDDrink, Depends(get_drink_repository)],
     grouped: bool = False,
-    db=Depends(get_db)
 ) -> list[schemas.Drink] | dict[int, list[schemas.Drink]]:
-    db_drinks = drink_repository.get_drink_event(db, event_id)
+    db_drinks = drink_repository.get_drink_event(event_id)
     if grouped:
         d = defaultdict(list)
         for drink in db_drinks:
