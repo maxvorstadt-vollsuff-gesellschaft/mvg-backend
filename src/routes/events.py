@@ -99,20 +99,26 @@ def remove_participant(
     db_event = event_service.remove_participant(event_id, oidc_user)
     return schemas.Event.from_orm(db_event)
 
+def _build_calendar_url(tag: str) -> str:
+    return f"https://api.mvg.life/events/calendar/{tag}"
+
 @router.post("/calendar", operation_id="create_calendar_link", description="Create a calendar link for the user. If the user already has a link, the existing link is returned.")
 def create_calendar_link(
     user_info: Annotated[Tuple[OIDCUser, models.Member], Depends(get_current_user)],
-    calendar_link_repository: Annotated[CRUDCalendarLink, Depends(get_calendar_link_repository)]
+    calendar_link_repository: Annotated[CRUDCalendarLink, Depends(get_calendar_link_repository)],
+    force: bool = False
 ) -> str:
     oidc_user, _ = user_info
-    existing_link = calendar_link_repository.get_by_member_sub(oidc_user.sub)
-    if existing_link:
-        return f"https://api.mvg.life/events/calendar/{existing_link.tag}"
-    tag = uuid.uuid4()
-    db_cal_link = calendar_link_repository.create(models.CalendarLink(member_sub=oidc_user.sub, tag=tag))
-    link = f"https://api.mvg.life/events/calendar/{db_cal_link.tag}"
-    return link
-
+    
+    if not force:
+        if existing_link := calendar_link_repository.get_by_member_sub(oidc_user.sub):
+            return _build_calendar_url(existing_link.tag)
+    
+    new_tag = uuid.uuid4()
+    calendar_link = models.CalendarLink(member_sub=oidc_user.sub, tag=new_tag)
+    db_cal_link = calendar_link_repository.create(calendar_link)
+    
+    return _build_calendar_url(db_cal_link.tag)
 
 @router.get("/calendar/{tag}", operation_id="get_calendar_events", response_class=Response)
 def get_calendar_events(

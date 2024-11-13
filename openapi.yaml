@@ -209,6 +209,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /events/upcoming:
+    get:
+      tags:
+        - events
+        - mvg
+      summary: Upcoming Events
+      operationId: list_upcoming_events
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 100
+            title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+                title: Response List Upcoming Events
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /events/event/{id}:
     get:
       tags:
@@ -321,39 +354,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /events/upcoming:
-    get:
-      tags:
-        - events
-        - mvg
-      summary: Events
-      operationId: list_upcoming_events
-      security:
-        - OAuth2PasswordBearer: []
-      parameters:
-        - name: limit
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 10
-            title: Limit
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Event'
-                title: Response List Upcoming Events
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
   /events/calendar:
     post:
       tags:
@@ -362,6 +362,16 @@ paths:
       summary: Create Calendar Link
       description: Create a calendar link for the user. If the user already has a link, the existing link is returned.
       operationId: create_calendar_link
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: force
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+            title: Force
       responses:
         '200':
           description: Successful Response
@@ -370,8 +380,12 @@ paths:
               schema:
                 type: string
                 title: Response Create Calendar Link
-      security:
-        - OAuth2PasswordBearer: []
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /events/calendar/{tag}:
     get:
       tags:
