@@ -1,4 +1,6 @@
 import datetime
+import logging
+import os
 from typing import Annotated, Tuple
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -8,6 +10,15 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_keycloak import OIDCUser
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.sdk import resources
+from opentelemetry import trace
+from opentelemetry.sdk.trace.sampling import TraceIdRatioBased
+from opentelemetry.sdk.trace.export import ConsoleSpanExporter, SimpleSpanProcessor
+
 
 from .services.event import EventService, get_event_service
 
@@ -22,9 +33,24 @@ from .minio_client import minio_client
 
 load_dotenv()
 
+tracer_provider = TracerProvider(
+    sampler=TraceIdRatioBased(1.0),
+    resource=resources.Resource.create({"service.name": "mvg-api"})
+)
+otlp_exporter = OTLPSpanExporter(
+    endpoint=os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT"),
+)
+
+span_processor = BatchSpanProcessor(otlp_exporter)
+tracer_provider.add_span_processor(span_processor)
+
+trace.set_tracer_provider(tracer_provider)
+
 app = FastAPI()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 models.Base.metadata.create_all(bind=engine)
+
+FastAPIInstrumentor.instrument_app(app)
 
 origins = [
     "https://mvg.life",

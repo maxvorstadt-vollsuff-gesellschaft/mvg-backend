@@ -2,6 +2,9 @@ openapi: 3.1.0
 info:
   title: FastAPI
   version: 0.1.0
+servers:
+  - url: https://api.mvg.life
+    description: Production server
 paths:
   /auth/login:
     get:
