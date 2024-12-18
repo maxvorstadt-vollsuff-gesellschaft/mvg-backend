@@ -75,6 +75,7 @@ app.include_router(routes.quotes.router)
 app.include_router(routes.chug.router)
 app.include_router(routes.card.router)
 app.include_router(routes.recipes.router)
+app.include_router(routes.kicker.router)
 
 
 @app.on_event("startup")
