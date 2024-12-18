@@ -2,9 +2,6 @@ openapi: 3.1.0
 info:
   title: FastAPI
   version: 0.1.0
-servers:
-  - url: https://api.mvg.life
-    description: Production server
 paths:
   /auth/login:
     get:
@@ -917,6 +914,69 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /goal_tracker/matches:
+    post:
+      tags:
+        - kicker
+        - mvg
+      summary: Create Match
+      operationId: create_match
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KickerMatchCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KickerMatch'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - kicker
+        - mvg
+      summary: List Matches
+      operationId: list_matches
+      parameters:
+        - name: skip
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            title: Skip
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KickerMatch'
+                title: Response List Matches
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /auth/hash:
     post:
       tags:
@@ -1195,6 +1255,86 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    KickerMatch:
+      properties:
+        team_a_score:
+          type: integer
+          title: Team A Score
+        team_b_score:
+          type: integer
+          title: Team B Score
+        team_a_player_1:
+          type: string
+          title: Team A Player 1
+        team_a_player_2:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Team A Player 2
+        team_b_player_1:
+          type: string
+          title: Team B Player 1
+        team_b_player_2:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Team B Player 2
+        id:
+          type: integer
+          title: Id
+        team_a_player_1_member:
+          $ref: '#/components/schemas/Member'
+        team_a_player_2_member:
+          anyOf:
+            - $ref: '#/components/schemas/Member'
+            - type: 'null'
+        team_b_player_1_member:
+          $ref: '#/components/schemas/Member'
+        team_b_player_2_member:
+          anyOf:
+            - $ref: '#/components/schemas/Member'
+            - type: 'null'
+      type: object
+      required:
+        - team_a_score
+        - team_b_score
+        - team_a_player_1
+        - team_b_player_1
+        - id
+        - team_a_player_1_member
+        - team_b_player_1_member
+      title: KickerMatch
+    KickerMatchCreate:
+      properties:
+        team_a_score:
+          type: integer
+          title: Team A Score
+        team_b_score:
+          type: integer
+          title: Team B Score
+        team_a_player_1:
+          type: string
+          title: Team A Player 1
+        team_a_player_2:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Team A Player 2
+        team_b_player_1:
+          type: string
+          title: Team B Player 1
+        team_b_player_2:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Team B Player 2
+      type: object
+      required:
+        - team_a_score
+        - team_b_score
+        - team_a_player_1
+        - team_b_player_1
+      title: KickerMatchCreate
     Member:
       properties:
         name:

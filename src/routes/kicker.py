@@ -22,7 +22,7 @@ def create_match(
 @router.get("/matches", response_model=List[schemas.KickerMatch], operation_id="list_matches")
 def list_matches(
     skip: int = 0,
-    limit: int = 10,
+    limit: int = 1000,
     match_repository: CRUDKickerMatch = Depends(get_kicker_match_repository)
 ) -> List[schemas.KickerMatch]:
     db_matches = match_repository.get_multi(skip=skip, limit=limit)
