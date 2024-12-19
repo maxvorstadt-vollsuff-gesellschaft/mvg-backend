@@ -12,6 +12,7 @@ class MemberCreate(MemberBase):
 class Member(MemberCreate):
     id: int
     user_sub: str
-
+    tkt_elo_rating: float
+    
     class Config:
         from_attributes = True

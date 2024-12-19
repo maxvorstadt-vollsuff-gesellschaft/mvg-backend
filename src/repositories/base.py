@@ -19,6 +19,10 @@ class CRUDBase(Generic[ModelType]):
     def get(self, id: int) -> ModelType | None:
         return self.db.query(self.model).filter(self.model.id == id).first()
 
+
+    def get_tkt_top_players(self, skip: int = 0, limit: int = 10) -> List[ModelType]:
+        return self.db.query(self.model).order_by(self.model.tkt_elo_rating.desc()).offset(skip).limit(limit).all()
+
     def get_multi(
         self, 
         skip: int = 0, 

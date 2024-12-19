@@ -933,7 +933,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/KickerMatch'
+                type: string
+                title: Response Create Match
         '422':
           description: Validation Error
           content:
@@ -959,7 +960,7 @@ paths:
           required: false
           schema:
             type: integer
-            default: 10
+            default: 1000
             title: Limit
       responses:
         '200':
@@ -971,6 +972,44 @@ paths:
                 items:
                   $ref: '#/components/schemas/KickerMatch'
                 title: Response List Matches
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /goal_tracker/top_players:
+    get:
+      tags:
+        - kicker
+        - mvg
+      summary: List Top Players
+      operationId: list_top_players
+      parameters:
+        - name: skip
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+            title: Skip
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1000
+            title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Member'
+                title: Response List Top Players
         '422':
           description: Validation Error
           content:
@@ -1346,11 +1385,15 @@ components:
         user_sub:
           type: string
           title: User Sub
+        tkt_elo_rating:
+          type: number
+          title: Tkt Elo Rating
       type: object
       required:
         - name
         - id
         - user_sub
+        - tkt_elo_rating
       title: Member
     Quote:
       properties:

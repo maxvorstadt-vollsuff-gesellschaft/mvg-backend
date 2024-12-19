@@ -30,6 +30,7 @@ from . import repositories
 from . import database
 from .database import engine, get_db
 from .minio_client import minio_client
+from .kicker_elo import start_elo_processing
 
 load_dotenv()
 
@@ -81,6 +82,11 @@ app.include_router(routes.kicker.router)
 @app.on_event("startup")
 async def startup() -> None:
     await database.database.connect()
+
+
+@app.on_event("startup")
+def elo_processing():
+    start_elo_processing()
 
 
 def get_next_quote(db: Session):

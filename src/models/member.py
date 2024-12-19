@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, Table, Column, ForeignKey, Boolean
+from sqlalchemy import Float, Integer, String, Table, Column, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING, List
 
@@ -34,3 +34,4 @@ class Member(Base):
     quotes: Mapped[List["Quote"]] = relationship("Quote", lazy='select', back_populates="author")
     events: Mapped[List["Event"]] = relationship("Event", lazy='select', back_populates="author")
     recipes: Mapped[list["Recipe"]] = relationship("Recipe", back_populates="author")
+    tkt_elo_rating: Mapped[float] = mapped_column(Float, default=1000)
