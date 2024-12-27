@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+import datetime
+from pydantic import BaseModel, field_validator
 from typing import Optional
 
 from .member import Member
@@ -10,6 +11,16 @@ class KickerMatchBase(BaseModel):
     team_a_player_2: Optional[str] = None
     team_b_player_1: str
     team_b_player_2: Optional[str] = None
+    history: Optional[str] = None
+    start_time: Optional[datetime.datetime] = None
+    end_time: Optional[datetime.datetime] = None
+    history: Optional[str] = None
+
+    @field_validator('start_time', 'end_time', pre=True, always=True)
+    def parse_datetime(cls, value):
+        if isinstance(value, int):
+            return datetime.datetime.fromtimestamp(value)
+        return value
 
 class KickerMatchCreate(KickerMatchBase):
     pass
