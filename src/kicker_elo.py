@@ -51,8 +51,12 @@ def record_match(match_data, retry_attempts=3, retry_delay=1):
                 if team_b_player_2:
                     team_b_player_2.tkt_elo_rating += (new_rating_b - rating_b) / 2
 
-                db.add(match)
 
+                print(f"New ratings: {new_rating_a}, {new_rating_b}")
+                print(f"player_a_1: {team_a_player_1.tkt_elo_rating}")
+                print(f"player_b_1: {team_b_player_1.tkt_elo_rating}")
+                db.add(match)
+                db.commit()
             return
 
         except OperationalError as e:
