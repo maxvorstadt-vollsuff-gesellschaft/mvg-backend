@@ -66,7 +66,8 @@ def record_match(match_data, retry_attempts=3, retry_delay=1):
 
         except Exception as e:
             db.rollback()
-            raise e
+            print(f"Error recording match: {e}")
+            break
 
 
 def process_matches():

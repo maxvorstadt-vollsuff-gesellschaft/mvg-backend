@@ -16,10 +16,16 @@ class KickerMatchBase(BaseModel):
     end_time: Optional[datetime.datetime] = None
     history: Optional[str] = None
 
-    @field_validator('start_time', 'end_time', pre=True, always=True)
+    @field_validator('start_time', 'end_time')
     def parse_datetime(cls, value):
         if isinstance(value, int):
             return datetime.datetime.fromtimestamp(value)
+        return value
+    
+    @field_validator('history')
+    def parse_history(cls, value):
+        if value is not None and not all(c in 'AB' for c in value):
+            raise ValueError("History can only contain the letters 'A' and 'B'.")
         return value
 
 class KickerMatchCreate(KickerMatchBase):
