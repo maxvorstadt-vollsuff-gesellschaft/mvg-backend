@@ -1016,6 +1016,164 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /dates:
+    post:
+      tags:
+        - dates
+        - mvg
+      summary: Create Date Idea
+      operationId: create_date_idea
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Name
+        - name: season
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/Jahreszeit'
+        - name: description
+          in: query
+          required: true
+          schema:
+            type: string
+            title: Description
+        - name: date_no
+          in: query
+          required: true
+          schema:
+            type: integer
+            title: Date No
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Body_create_date_idea'
+              title: Body
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DateIdea'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - dates
+        - mvg
+      summary: Get All Date Ideas
+      operationId: get_all_date_ideas
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DateIdea'
+                title: Response Get All Date Ideas
+    delete:
+      tags:
+        - dates
+        - mvg
+      summary: Delete Date Idea
+      operationId: delete_date_idea
+      security:
+        - OAuth2PasswordBearer: []
+      parameters:
+        - name: date_idea_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            title: Date Idea Id
+        - name: date_idea_name
+          in: query
+          required: false
+          schema:
+            type: string
+            title: Date Idea Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Delete Date Idea
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /dates/{date_idea_id}:
+    get:
+      tags:
+        - dates
+        - mvg
+      summary: Get Date Idea
+      operationId: get_date_idea_by_id
+      parameters:
+        - name: date_idea_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Date Idea Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DateIdea'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /dates/image:
+    post:
+      tags:
+        - dates
+        - mvg
+      summary: Upload Date Idea Image
+      operationId: upload_date_idea_image
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_date_idea_image'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: string
+                title: Response Upload Date Idea Image
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /auth/hash:
     post:
       tags:
@@ -1084,6 +1242,16 @@ components:
         - member
         - time
       title: BaseChug
+    Body_create_date_idea:
+      properties:
+        image:
+          anyOf:
+            - type: string
+              format: binary
+            - type: 'null'
+          title: Image
+      type: object
+      title: Body_create_date_idea
     Body_create_recipe:
       properties:
         image:
@@ -1094,6 +1262,16 @@ components:
           title: Image
       type: object
       title: Body_create_recipe
+    Body_upload_date_idea_image:
+      properties:
+        image:
+          type: string
+          format: binary
+          title: Image
+      type: object
+      required:
+        - image
+      title: Body_upload_date_idea_image
     Body_upload_recipe_image:
       properties:
         image:
@@ -1130,6 +1308,49 @@ components:
         - member_id
         - card_uid
       title: CreateCard
+    DateIdea:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Description
+          description: A brief description of the recipe.
+        time:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Time
+        season:
+          $ref: '#/components/schemas/Jahreszeit'
+        image_url:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Image Url
+        date_no:
+          type: integer
+          title: Date No
+        id:
+          type: integer
+          title: Id
+        author:
+          anyOf:
+            - $ref: '#/components/schemas/Member'
+            - type: 'null'
+      type: object
+      required:
+        - name
+        - time
+        - season
+        - image_url
+        - date_no
+        - id
+        - author
+      title: DateIdea
     Drink:
       properties:
         drink:
@@ -1294,6 +1515,15 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    Jahreszeit:
+      type: string
+      enum:
+        - winter
+        - spring
+        - summer
+        - fall
+        - all
+      title: Jahreszeit
     KickerMatch:
       properties:
         team_a_score:
@@ -1318,6 +1548,23 @@ components:
             - type: string
             - type: 'null'
           title: Team B Player 2
+        history:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: History
+        start_time:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: Start Time
+        end_time:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: End Time
         id:
           type: integer
           title: Id
@@ -1367,6 +1614,23 @@ components:
             - type: string
             - type: 'null'
           title: Team B Player 2
+        history:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: History
+        start_time:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: Start Time
+        end_time:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: End Time
       type: object
       required:
         - team_a_score

@@ -9,3 +9,4 @@ from .card import get_card_repository, CRUDCard
 from .recipe import get_recipe_repository, CRUDRecipe
 from .calendar import get_calendar_link_repository, CRUDCalendarLink
 from .kicker import get_kicker_match_repository, CRUDKickerMatch
+from .dates import get_date_idea_repository, CRUDDateIdea
